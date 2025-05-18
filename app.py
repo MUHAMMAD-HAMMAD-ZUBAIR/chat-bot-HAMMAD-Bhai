@@ -1,41 +1,86 @@
 import os
 from flask import Flask, render_template, request, jsonify
 import google.generativeai as genai
+from abc import ABC, abstractmethod
 
+# ----------- Abstract Base Class for Model ------------
+class BaseChatModel(ABC):
+    @abstractmethod
+    def start_chat(self, history):
+        pass
+
+# ----------- Gemini Model Wrapper ------------
+class GeminiModel(BaseChatModel):
+    def __init__(self, api_key: str, model_name: str = 'gemini-1.5-flash'):
+        if not api_key:
+            raise ValueError("API Key is required for Gemini API")
+        genai.configure(api_key=api_key)
+        self.model = genai.GenerativeModel(model_name)
+
+    def start_chat(self, history):
+        return self.model.start_chat(history=history)
+
+# ----------- Conversation History Manager ------------
+class ConversationHistory:
+    def __init__(self):
+        self.history = []
+
+    def add_user_message(self, message):
+        self.history.append({"role": "user", "parts": [message]})
+
+    def add_model_response(self, message):
+        self.history.append({"role": "model", "parts": [message]})
+
+    def reset(self):
+        self.history = []
+
+    def get(self):
+        return self.history
+
+    def pop_last_if_user(self):
+        if self.history and self.history[-1]["role"] == "user":
+            self.history.pop()
+
+# ----------- Main Chatbot Controller ------------
+class ChatBot:
+    def __init__(self, model: BaseChatModel):
+        self.model = model
+        self.history = ConversationHistory()
+
+    def send_message(self, user_message: str) -> str:
+        self.history.add_user_message(user_message)
+        chat = self.model.start_chat(self.history.get())
+        response = chat.send_message(user_message)
+        self.history.add_model_response(response.text)
+        return response.text
+
+    def get_conversation(self):
+        return self.history.get()
+
+    def reset_conversation(self):
+        self.history.reset()
+
+    def undo_last_user_message(self):
+        self.history.pop_last_if_user()
+
+# ----------- Flask Setup ------------
 app = Flask(__name__)
 
-# Configuration for Google Gemini API
-# You'll need to set your API key as an environment variable or enter it directly here
-# Get your API key from https://ai.google.dev/
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyDzkUNQuw_V8q54kesKdX-T_2wcqh8kCvA")  # API key provided by user
+# Load API key (env or direct fallback)
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyDzkUNQuw_V8q54kesKdX-T_2wcqh8kCvA")
 
-# Check if API key is provided
-if not GEMINI_API_KEY:
-    print("\n" + "="*50)
-    print("WARNING: Gemini API Key not found!")
-    print("Please edit app.py and add your API key to the GEMINI_API_KEY variable")
-    print("Get your API key from https://ai.google.dev/")
-    print("="*50 + "\n")
-    raise ValueError("API Key is required to use the Gemini API")
+# Initialize Gemini model and ChatBot
+gemini_model = GeminiModel(api_key=GEMINI_API_KEY)
+chatbot = ChatBot(model=gemini_model)
 
-# Configure the Gemini API
-genai.configure(api_key=GEMINI_API_KEY)
-
-# Set up the model
-# Using gemini-1.5-flash which has higher quota limits than gemini-1.5-pro
-model = genai.GenerativeModel('gemini-1.5-flash')
-
-# Store conversation history
-conversation_history = []
+# ----------- Flask Routes ------------
 
 @app.route('/')
 def index():
-    """Render the main chat interface."""
     return render_template('index.html')
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    """Process chat messages and return AI responses."""
     try:
         data = request.json
         user_message = data.get('message', '')
@@ -43,39 +88,26 @@ def chat():
         if not user_message:
             return jsonify({'error': 'No message provided'}), 400
 
-        # Add user message to conversation history
-        conversation_history.append({"role": "user", "parts": [user_message]})
-
         try:
-            # Create a chat session
-            chat = model.start_chat(history=conversation_history)
-
-            # Generate a response
-            response = chat.send_message(user_message)
-
-            # Add AI response to conversation history
-            conversation_history.append({"role": "model", "parts": [response.text]})
-
+            response = chatbot.send_message(user_message)
             return jsonify({
-                'response': response.text,
-                'conversation': conversation_history
+                'response': response,
+                'conversation': chatbot.get_conversation()
             })
 
         except Exception as api_error:
             error_message = str(api_error)
             print(f"API Error: {error_message}")
 
-            # Check for quota exceeded errors
-            if "429" in error_message and "quota" in error_message:
-                user_friendly_message = "API quota exceeded. The free tier of Google Gemini API has rate limits. Please try again in a minute or switch to a different model."
-            elif "400" in error_message and "safety" in error_message.lower():
-                user_friendly_message = "Your message was flagged by the AI safety filters. Please try a different message."
-            else:
-                user_friendly_message = "There was an error communicating with the AI service. Please try again later."
+            chatbot.undo_last_user_message()
 
-            # Remove the failed user message from history
-            if conversation_history and conversation_history[-1]["role"] == "user":
-                conversation_history.pop()
+            # Friendly error messages
+            if "429" in error_message and "quota" in error_message:
+                user_friendly_message = "API quota exceeded. Please try again later."
+            elif "400" in error_message and "safety" in error_message.lower():
+                user_friendly_message = "Message blocked by safety filters. Try something different."
+            else:
+                user_friendly_message = "AI service error. Please try again."
 
             return jsonify({
                 'error': user_friendly_message,
@@ -84,14 +116,13 @@ def chat():
 
     except Exception as e:
         print(f"Server Error: {str(e)}")
-        return jsonify({'error': 'An unexpected error occurred on the server.'}), 500
+        return jsonify({'error': 'Unexpected server error occurred.'}), 500
 
 @app.route('/api/reset', methods=['POST'])
 def reset_conversation():
-    """Reset the conversation history."""
-    global conversation_history
-    conversation_history = []
+    chatbot.reset_conversation()
     return jsonify({'status': 'Conversation reset successfully'})
 
+# ----------- Run Flask App ------------
 if __name__ == '__main__':
     app.run(debug=True)

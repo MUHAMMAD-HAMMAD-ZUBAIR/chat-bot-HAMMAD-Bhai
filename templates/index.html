@@ -1,39 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chart with MHZ</title>
-
-    <!-- ✅ Google Font: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
-    <!-- ✅ External CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
-    <!-- ✅ Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat with HAMMAD Bhai 🤖</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h1><i class="fas fa-robot"></i> Chart with MHZ</h1>
-            <button id="reset-btn" title="Reset Conversation"><i class="fas fa-redo-alt"></i></button>
-        </div>
-        <div class="chat-messages" id="chat-messages">
-            <div class="message bot-message">
-                <div class="message-content">
-                    <p>Hello! I'm HAMMAD BHAI. How can I help you today?</p>
-                </div>
-            </div>
-        </div>
-        <div class="chat-input-container">
-            <textarea id="user-input" placeholder="Type your message here..." rows="1"></textarea>
-            <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
 
-    <!-- ✅ JavaScript -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<header class="main-header">
+  <h1><i class="fas fa-robot"></i> Chat with <span class="highlight">HAMMAD Bhai</span></h1>
+  <p>Your friendly AI assistant at your service! 🤖✨</p>
+</header>
+
+<main class="chat-container">
+
+  <div class="chat-messages" id="chat-messages">
+    <div class="message bot-message">
+      <div class="message-content">
+        Hey there! I'm <strong>HAMMAD BHAI</strong> 🤖, Here to make your day smoother and brighter! 🌟 What can I help you with today??
+      </div>
+    </div>
+  </div>
+
+  <div class="typing-indicator" id="typing-indicator" aria-live="polite" aria-atomic="true" hidden>
+    <span></span><span></span><span></span>
+  </div>
+
+  <form id="chat-form" class="chat-input-container" autocomplete="off">
+    <textarea id="user-input" placeholder="Type your message here..." rows="1" required></textarea>
+    <button type="submit" id="send-btn" aria-label="Send Message"><i class="fas fa-paper-plane"></i></button>
+  </form>
+
+  <button id="reset-btn" title="Reset Chat"><i class="fas fa-redo-alt"></i> Reset Chat</button>
+
+</main>
+
+<footer class="main-footer">
+  🚀 Crafted with patience, discipline, and unwavering hard work by <strong>MUHAMMAD HAMMAD ZUBAIR</strong> | Chat-Bot Born on: <strong>20/May/2025</strong> <br />
+  🌟 A true testament that passion and perseverance turn dreams into reality. 💪🔥✨
+</footer>
+
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
 </body>
 </html>

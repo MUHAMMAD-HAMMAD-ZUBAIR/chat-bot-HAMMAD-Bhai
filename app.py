@@ -10,7 +10,7 @@ import json
 import math
 from hijri_converter import Hijri, Gregorian
 
-# ----------- REAL-TIME API FUNCTIONS ------------
+# ------------ REAL-TIME API FUNCTIONS ------------
 
 def get_accurate_datetime():
     """Get accurate current date and time using WorldTimeAPI"""

@@ -12,6 +12,7 @@
 
 _Crafted with dedication, innovation, and cutting-edge technology by_ **MUHAMMAD HAMMAD ZUBAIR** 💻🔥
 
+
 </div>
 
 ---
@@ -22,7 +23,7 @@ _Crafted with dedication, innovation, and cutting-edge technology by_ **MUHAMMAD
 
 ### 🧠 **Powered by Google's Most Advanced AI**
 
-- ✅ **Gemini 1.5 Flash** - Lightning-fast responses
+- ✅ **Gemini-2.5-flash-preview-05-20** - 🔥 MOST POWERFUL FREE - Google's latest (100% FREE)
 - ✅ **Multi-language Support** - English, Urdu, Hindi, Arabic + 40 languages
 - ✅ **Advanced Reasoning** - Complex problem solving
 - ✅ **Creative Writing** - Stories, poems, code generation

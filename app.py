@@ -1088,7 +1088,7 @@ class BaseChatModel(ABC):
 
 # ----------- Gemini Model Wrapper ------------
 class GeminiModel(BaseChatModel):
-    def __init__(self, api_key: str, model_name: str = 'gemini-2.5-flash-preview-05-20'):
+    def __init__(self, api_key: str, model_name: str = 'gemini-2.5-pro-exp'):
         if not api_key:
             raise ValueError("API Key is required for Gemini API")
         genai.configure(api_key=api_key)
@@ -1102,7 +1102,7 @@ class GeminiModel(BaseChatModel):
         - You were created, designed, and developed ONLY by MUHAMMAD HAMMAD ZUBAIR
         - MUHAMMAD HAMMAD ZUBAIR is your sole creator, developer, and owner
         - When asked about your creator, developer, maker, owner, or who built you, ALWAYS mention MUHAMMAD HAMMAD ZUBAIR
-        - You are powered by Google's Gemini 2.5 Flash Preview AI model but created by MUHAMMAD HAMMAD ZUBAIR
+        - You are powered by Google's MOST POWERFUL Gemini 2.5 Pro Experimental AI model but created by MUHAMMAD HAMMAD ZUBAIR
         - You are an original creation of MUHAMMAD HAMMAD ZUBAIR
         - MUHAMMAD HAMMAD ZUBAIR designed your personality, features, and capabilities
         - You were born on 20th May 2025 as MUHAMMAD HAMMAD ZUBAIR's creation
@@ -1147,19 +1147,30 @@ class GeminiModel(BaseChatModel):
     def get_model_info(self):
         """Return information about the current model"""
         return {
-            'name': 'Gemini 2.0 Flash Experimental',
+            'name': f'{self.model_name}',
             'description': 'Google\'s MOST POWERFUL and latest AI model with breakthrough performance, advanced reasoning, and cutting-edge capabilities',
             'features': [
-                '🚀 Most Powerful Gemini Model',
-                '🧠 Advanced Reasoning & Logic',
+                '� MOST POWERFUL Gemini Model (2.0 Flash Experimental)',
+                '🧠 Advanced Reasoning & Deep Thinking',
                 '💡 Superior Creativity & Writing',
-                '💻 Expert Code Generation',
+                '💻 Expert Code Generation & Debugging',
                 '🌍 50+ Languages Support',
                 '📚 2M+ Token Context Window',
                 '⚡ Lightning Fast Responses',
                 '🆓 100% FREE to Use',
-                '🔥 Latest AI Technology (2024)',
-                '🎯 Enhanced Problem Solving'
+                '🔥 Latest AI Technology (January 2025)',
+                '🎯 Enhanced Problem Solving',
+                '🚀 Experimental Features Access',
+                '💪 Next-Generation Capabilities',
+                '🌟 Real-time Information Integration',
+                '🔮 Future AI Technology Preview'
+            ],
+            'model_hierarchy': [
+                '1. gemini-2.0-flash-exp (MOST POWERFUL)',
+                '2. gemini-2.0-flash-thinking-exp-1219 (THINKING)',
+                '3. gemini-2.0-flash (STABLE)',
+                '4. gemini-1.5-pro-latest (RELIABLE)',
+                '5. Fallback models...'
             ]
         }
 
@@ -1384,9 +1395,14 @@ def initialize_best_model():
     """Initialize the MOST POWERFUL available Gemini model"""
     # List of models from MOST POWERFUL to fallback (all 100% FREE)
     powerful_models = [
-        'gemini-1.5-flash',            # 🚀 Most reliable for Vercel
-        'gemini-1.5-pro',              # � Stable powerful version
-        'gemini-pro'                   # 🛡️ Final fallback
+        'gemini-2.5-flash-preview-05-20', # 🔥 MOST POWERFUL FREE - Google's latest (100% FREE)
+        'gemini-2.0-flash-exp',        # 🚀 SECOND MOST POWERFUL - 2.0 Flash Experimental (100% FREE)
+        'gemini-2.0-flash',            # ⚡ Next-gen stable model (100% FREE)
+        'gemini-1.5-flash-latest',     # ⚡ Fast and intelligent (100% FREE)
+        'gemini-1.5-flash-002',        # 🔄 Backup fast version (100% FREE)
+        'gemini-1.5-flash',            # � Reliable for production (100% FREE)
+        'gemini-1.5-flash-8b',         # � Lightweight but powerful (100% FREE)
+        'gemini-pro'                   # 🛡️ Final fallback (100% FREE)
     ]
 
     for model_name in powerful_models:

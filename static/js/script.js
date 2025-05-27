@@ -89,12 +89,12 @@ document.addEventListener("DOMContentLoaded", function () {
       method: "POST",
     })
       .then((response) => response.json())
-      .then((data) => {
+      .then(() => {
         // Clear chat messages except for the welcome message
         chatMessages.innerHTML = `
                 <div class="message bot-message">
                      <div class="message-content">
-          Hey there! I'm <strong>HAMMAD BHAI</strong> 🤖, here to make your day smoother and brighter! 🌟 How can I assist you today? Forget the loading animation — just type your message.
+            Hey there! I'm <strong>HAMMAD BHAI</strong> 🤖, created by <strong>MUHAMMAD HAMMAD ZUBAIR</strong>, here to make your day smoother and brighter! 🌟 How can I assist you today? Forget the loading animation — just type your message.
       </div>
                 </div>
             `;

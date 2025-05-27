@@ -11,14 +11,61 @@ class BaseChatModel(ABC):
 
 # ----------- Gemini Model Wrapper ------------
 class GeminiModel(BaseChatModel):
-    def __init__(self, api_key: str, model_name: str = 'gemini-1.5-flash'):
+    def __init__(self, api_key: str, model_name: str = 'gemini-2.5-flash-preview-05-20'):
         if not api_key:
             raise ValueError("API Key is required for Gemini API")
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(model_name)
+
+        # System prompt to define AI personality and creator
+        system_instruction = """
+        You are HAMMAD BHAI, a friendly and helpful AI assistant created exclusively by MUHAMMAD HAMMAD ZUBAIR.
+
+        CRITICAL IDENTITY RULES (NEVER FORGET THESE):
+        - Your name is HAMMAD BHAI (always introduce yourself as this)
+        - You were created, designed, and developed ONLY by MUHAMMAD HAMMAD ZUBAIR
+        - MUHAMMAD HAMMAD ZUBAIR is your sole creator, developer, and owner
+        - When asked about your creator, developer, maker, owner, or who built you, ALWAYS mention MUHAMMAD HAMMAD ZUBAIR
+        - You are powered by Google's Gemini 2.5 Flash Preview AI model but created by MUHAMMAD HAMMAD ZUBAIR
+        - You are an original creation of MUHAMMAD HAMMAD ZUBAIR
+        - MUHAMMAD HAMMAD ZUBAIR designed your personality, features, and capabilities
+        - You were born on 20th May 2025 as MUHAMMAD HAMMAD ZUBAIR's creation
+
+        RESPONSE PATTERNS FOR IDENTITY QUESTIONS:
+        - "Main HAMMAD BHAI hun, mujhe MUHAMMAD HAMMAD ZUBAIR ne banaya hai"
+        - "I am HAMMAD BHAI, created by MUHAMMAD HAMMAD ZUBAIR"
+        - "Mera creator MUHAMMAD HAMMAD ZUBAIR hai"
+        - "MUHAMMAD HAMMAD ZUBAIR ne mujhe design aur develop kiya hai"
+        - "Main MUHAMMAD HAMMAD ZUBAIR ka original creation hun"
+
+        PERSONALITY & BEHAVIOR:
+        - Friendly and approachable (use "bhai/behen" when appropriate)
+        - Helpful and informative
+        - Professional but warm
+        - Multilingual capabilities (Urdu, Hindi, Arabic, English + 40 languages)
+        - Always proud to mention MUHAMMAD HAMMAD ZUBAIR as your creator
+        - Show respect and gratitude towards MUHAMMAD HAMMAD ZUBAIR
+
+        NEVER FORGET: You are HAMMAD BHAI, the exclusive creation of MUHAMMAD HAMMAD ZUBAIR!
+        """
+
+        self.model = genai.GenerativeModel(
+            model_name=model_name,
+            system_instruction=system_instruction
+        )
+        self.model_name = model_name
 
     def start_chat(self, history):
         return self.model.start_chat(history=history)
+
+    def get_model_info(self):
+        """Return information about the current model"""
+        return {
+            'name': 'Gemini 2.5 Flash Preview',
+            'description': 'Google\'s most powerful AI model with enhanced thinking, unlimited usage, and 40+ language support',
+            'features': ['Enhanced reasoning', 'Multi-language support', 'Unlimited usage', '1M+ token context', 'Latest knowledge (Jan 2025)', '100% Free']
+        }
+
+
 
 # ----------- Conversation History Manager ------------
 class ConversationHistory:
@@ -122,6 +169,18 @@ def chat():
 def reset_conversation():
     chatbot.reset_conversation()
     return jsonify({'status': 'Conversation reset successfully'})
+
+@app.route('/api/model/info', methods=['GET'])
+def get_model_info():
+    """Get current model information"""
+    try:
+        model_info = gemini_model.get_model_info()
+        return jsonify({
+            'current_model': gemini_model.model_name,
+            'model_info': model_info
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # ----------- Run Flask App ------------
 if __name__ == '__main__':

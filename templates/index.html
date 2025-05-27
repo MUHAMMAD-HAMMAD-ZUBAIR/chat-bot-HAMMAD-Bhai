@@ -1,52 +1,114 @@
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat with HAMMAD Bhai 🤖</title>
-  
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-</head>
-<body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+     <title>Chat with HAMMAD Bhai 🤖</title>
 
-<header class="main-header">
-  <h1><i class="fas fa-robot"></i> Chat with <span class="highlight">HAMMAD Bhai</span></h1>
-  <p>Your friendly AI assistant at your service! 🤖✨</p>
-</header>
+    <!-- Creator & Copyright Information -->
+    <meta name="author" content="MUHAMMAD HAMMAD ZUBAIR" />
+    <meta name="creator" content="MUHAMMAD HAMMAD ZUBAIR" />
+    <meta name="developer" content="MUHAMMAD HAMMAD ZUBAIR" />
+    <meta
+      name="description"
+      content="HAMMAD BHAI AI Assistant - Exclusively created, designed and developed by MUHAMMAD HAMMAD ZUBAIR."
+    />
+    <meta
+      name="keywords"
+      content="HAMMAD BHAI, MUHAMMAD HAMMAD ZUBAIR, AI Assistant, Chatbot, Gemini AI"
+    />
+    <meta
+      name="copyright"
+      content="© 2025 MUHAMMAD HAMMAD ZUBAIR. All rights reserved."
+    />
 
-<main class="chat-container">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
 
-  <div class="chat-messages" id="chat-messages">
-    <div class="message bot-message">
-         <div class="message-content">
-          Hey there! I'm <strong>HAMMAD BHAI</strong> 🤖, here to make your day smoother and brighter! 🌟 How can I assist you today? Forget the loading animation — just type your message.
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}?v=2025"
+    />
+  </head>
+  <body>
+    <header class="main-header">
+      <h1>
+        <i class="fas fa-robot"></i> Chat with
+        <span class="highlight">HAMMAD Bhai</span>
+      </h1>
+     <p>Your friendly AI assistant at your service! 🤖✨</p>
+      <p style="font-size: 0.9rem; color: #64ffda; margin-top: 0.5rem">
+        🌟 Enhanced thinking • Multi-language support • Unlimited usage • 100%
+        Free
+      </p>
+      <p
+        style="
+          font-size: 0.8rem;
+          color: #ff6363;
+          margin-top: 0.3rem;
+          font-weight: 600;
+        "
+      >
+        🔥 Proudly Created & Developed by
+        <strong>MUHAMMAD HAMMAD ZUBAIR</strong> 🔥
+      </p>
+    </header>
+
+    <main class="chat-container">
+      <div class="chat-messages" id="chat-messages">
+        <div class="message bot-message">
+          <div class="message-content">
+            Hey there! I'm <strong>HAMMAD BHAI</strong> 🤖, created by
+            <strong>MUHAMMAD HAMMAD ZUBAIR</strong>, here to make your day
+            smoother and brighter! 🌟 How can I assist you today? Forget the
+            loading animation — just type your message.
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="typing-indicator" id="typing-indicator" aria-live="polite" aria-atomic="true" hidden>
-    <span></span><span></span><span></span>
-  </div>
+      <div
+        class="typing-indicator"
+        id="typing-indicator"
+        aria-live="polite"
+        aria-atomic="true"
+        hidden
+      >
+        <span></span><span></span><span></span>
+      </div>
 
-  <form id="chat-form" class="chat-input-container" autocomplete="off">
-    <textarea id="user-input" placeholder="Type your message here..." rows="1" required></textarea>
-    <button type="submit" id="send-btn" aria-label="Send Message"><i class="fas fa-paper-plane"></i></button>
-  </form>
+      <form id="chat-form" class="chat-input-container" autocomplete="off">
+        <textarea
+          id="user-input"
+          placeholder="Type your message here..."
+          rows="1"
+          required
+        ></textarea>
+        <button type="submit" id="send-btn" aria-label="Send Message">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </form>
 
-  <button id="reset-btn" title="Reset Chat"><i class="fas fa-redo-alt"></i> Reset Chat</button>
+      <button id="reset-btn" title="Reset Chat">
+        <i class="fas fa-redo-alt"></i> Reset Chat
+      </button>
+    </main>
 
-</main>
+    <footer class="main-footer">
+      🚀 <strong>HAMMAD BHAI AI Assistant</strong> - Exclusively Created,
+      Designed & Developed by <strong>MUHAMMAD HAMMAD ZUBAIR</strong> 🚀<br />
+      📅 Chat-Bot Born on: <strong>20/May/2025</strong> | 🏆 Original Creator:
+      <strong>MUHAMMAD HAMMAD ZUBAIR</strong><br />
+      🌟 A true testament that passion and perseverance turn dreams into
+      reality. 💪🔥✨<br />
+      ⚡ <strong>100% Original Work by MUHAMMAD HAMMAD ZUBAIR</strong> ⚡
+    </footer>
 
-<footer class="main-footer">
-  🚀 Crafted with patience, discipline, and unwavering hard work by <strong>MUHAMMAD HAMMAD ZUBAIR</strong> | Chat-Bot Born on: <strong>20/May/2025</strong> <br />
-  🌟 A true testament that passion and perseverance turn dreams into reality. 💪🔥✨
-</footer>
-
-
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
-</body>
+    <script src="{{ url_for('static', filename='js/script.js') }}?v=2025"></script>
+  </body>
 </html>

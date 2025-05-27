@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-     <title>Chat with HAMMAD Bhai 🤖</title>
+    <title>Chat with HAMMAD Bhai 🤖</title>
 
     <!-- Creator & Copyright Information -->
     <meta name="author" content="MUHAMMAD HAMMAD ZUBAIR" />
@@ -42,7 +42,7 @@
         <i class="fas fa-robot"></i> Chat with
         <span class="highlight">HAMMAD Bhai</span>
       </h1>
-     <p>Your friendly AI assistant at your service! 🤖✨</p>
+      <p>Your friendly AI assistant at your service! 🤖✨</p>
       <p style="font-size: 0.9rem; color: #64ffda; margin-top: 0.5rem">
         🌟 Enhanced thinking • Multi-language support • Unlimited usage • 100%
         Free
@@ -62,12 +62,30 @@
 
     <main class="chat-container">
       <div class="chat-messages" id="chat-messages">
-        <div class="message bot-message">
+        <div class="message bot-message" data-message-id="welcome_msg">
           <div class="message-content">
-            Hey there! I'm <strong>HAMMAD BHAI</strong> 🤖, created by
+                       Hey there! I'm <strong>HAMMAD BHAI</strong> 🤖, created by
             <strong>MUHAMMAD HAMMAD ZUBAIR</strong>, here to make your day
             smoother and brighter! 🌟 How can I assist you today? Forget the
             loading animation — just type your message.
+
+            <div class="message-timestamp" id="welcome-timestamp"></div>
+          </div>
+          <div class="message-actions">
+            <button
+              class="action-btn copy-btn"
+              title="Copy message"
+              onclick="copyMessage('welcome_msg')"
+            >
+              <i class="fas fa-copy"></i>
+            </button>
+            <button
+              class="action-btn regenerate-btn"
+              title="Regenerate response"
+              onclick="regenerateMessage('welcome_msg')"
+            >
+              <i class="fas fa-redo"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -85,12 +103,20 @@
       <form id="chat-form" class="chat-input-container" autocomplete="off">
         <textarea
           id="user-input"
-          placeholder="Type your message here..."
+          placeholder="Message HAMMAD BHAI..."
           rows="1"
           required
         ></textarea>
         <button type="submit" id="send-btn" aria-label="Send Message">
           <i class="fas fa-paper-plane"></i>
+        </button>
+        <button
+          type="button"
+          id="stop-btn"
+          aria-label="Stop Generation"
+          style="display: none"
+        >
+          <i class="fas fa-stop"></i>
         </button>
       </form>
 
@@ -110,5 +136,18 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/script.js') }}?v=2025"></script>
+    <script>
+      // Set welcome message timestamp
+      document.addEventListener("DOMContentLoaded", function () {
+        const welcomeTimestamp = document.getElementById("welcome-timestamp");
+        if (welcomeTimestamp) {
+          const timestamp = new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          welcomeTimestamp.textContent = timestamp;
+        }
+      });
+    </script>
   </body>
 </html>

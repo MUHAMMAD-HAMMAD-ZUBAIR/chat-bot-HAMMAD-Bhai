@@ -1363,22 +1363,29 @@ Visibility: {current['visibility']} km
 # ----------- Flask Setup ------------
 app = Flask(__name__)
 
+# CORS headers for Vercel
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
 # Load API key (env or direct fallback)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyDzkUNQuw_V8q54kesKdX-T_2wcqh8kCvA")
+
+# Validate API key
+if not GEMINI_API_KEY or GEMINI_API_KEY == "your_api_key_here":
+    print("⚠️ WARNING: No valid API key found. Please set GEMINI_API_KEY environment variable.")
+    GEMINI_API_KEY = "AIzaSyDzkUNQuw_V8q54kesKdX-T_2wcqh8kCvA"  # Fallback key
 
 # Initialize Gemini model with fallback options
 def initialize_best_model():
     """Initialize the MOST POWERFUL available Gemini model"""
     # List of models from MOST POWERFUL to fallback (all 100% FREE)
     powerful_models = [
-        'gemini-2.0-flash-exp',        # 🔥 MOST POWERFUL - Latest experimental
-        'gemini-2.5-flash-preview-05-20', # 🚀 Most powerful latest model
-        'gemini-2.0-flash',            # ⚡ Next-gen stable model
-        'gemini-1.5-pro-latest',       # 💪 Stable powerful version
-        'gemini-1.5-pro-002',          # 🧠 Latest stable pro
-        'gemini-1.5-pro',              # 📚 Reliable pro version
-        'gemini-1.5-flash-latest',     # ⚡ Fast and intelligent
-        'gemini-1.5-flash-002',        # 🔄 Backup fast version
+        'gemini-1.5-flash',            # 🚀 Most reliable for Vercel
+        'gemini-1.5-pro',              # � Stable powerful version
         'gemini-pro'                   # 🛡️ Final fallback
     ]
 
@@ -1403,14 +1410,35 @@ chatbot = ChatBot(model=gemini_model)
 def index():
     return render_template('index.html')
 
+@app.route('/api/test', methods=['GET'])
+def test_api():
+    """Test endpoint to check if API is working"""
+    return jsonify({
+        'status': 'success',
+        'message': 'API is working correctly!',
+        'timestamp': datetime.now().isoformat(),
+        'model': gemini_model.model_name if gemini_model else 'Not initialized'
+    })
+
 @app.route('/api/chat', methods=['POST'])
 def chat():
     try:
-        data = request.json
-        user_message = data.get('message', '')
+        # Better request validation
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be application/json'}), 400
+
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+
+        user_message = data.get('message', '').strip()
 
         if not user_message:
             return jsonify({'error': 'No message provided'}), 400
+
+        # Validate message length
+        if len(user_message) > 5000:
+            return jsonify({'error': 'Message too long (max 5000 characters)'}), 400
 
         try:
             response = chatbot.send_message(user_message)
@@ -1425,17 +1453,26 @@ def chat():
 
             chatbot.undo_last_user_message()
 
-            # Friendly error messages
-            if "429" in error_message and "quota" in error_message:
-                user_friendly_message = "API quota exceeded. Please try again later."
-            elif "400" in error_message and "safety" in error_message.lower():
-                user_friendly_message = "Message blocked by safety filters. Try something different."
+            # Detailed error handling for different scenarios
+            if "400" in error_message:
+                if "safety" in error_message.lower():
+                    user_friendly_message = "Message blocked by safety filters. Please try a different question."
+                elif "invalid" in error_message.lower():
+                    user_friendly_message = "Invalid request format. Please try again."
+                else:
+                    user_friendly_message = "Bad request. Please check your message and try again."
+            elif "429" in error_message:
+                user_friendly_message = "API quota exceeded. Please try again in a few minutes."
+            elif "401" in error_message or "403" in error_message:
+                user_friendly_message = "Authentication error. Please contact support."
+            elif "500" in error_message:
+                user_friendly_message = "Server error. Please try again later."
             else:
-                user_friendly_message = "AI service error. Please try again."
+                user_friendly_message = "AI service temporarily unavailable. Please try again."
 
             return jsonify({
                 'error': user_friendly_message,
-                'technical_error': error_message
+                'status': 'error'
             }), 500
 
     except Exception as e:
@@ -1861,5 +1898,9 @@ def get_all_comprehensive_info():
         return jsonify({'error': f'Failed to get comprehensive info: {str(e)}'}), 500
 
 # ----------- Run Flask App ------------
+# For Vercel deployment
+app.config['ENV'] = 'production'
+app.config['DEBUG'] = False
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -242,9 +242,13 @@ You are free to use, modify, and distribute it with proper credits. 🤝
 ## 👤 Author Info
 
 **👑 MUHAMMAD HAMMAD ZUBAIR**
+
 💻 Passionate Developer & Future Software Engineer
+
 📅 chat-bot Born on: 20/May/2025
+
 📌 Project Year: 2025
+
 ✨ Believer in hard work, creativity, and building useful things for the world 🌍
 
 ---

@@ -12,8 +12,6 @@
 
 _Crafted with dedication, innovation, and cutting-edge technology by_ **MUHAMMAD HAMMAD ZUBAIR** 💻🔥
 
-[🌐 Live Demo](https://your-app.vercel.app) | [📖 Documentation](#documentation) | [🚀 Deploy Now](#deployment)
-
 </div>
 
 ---

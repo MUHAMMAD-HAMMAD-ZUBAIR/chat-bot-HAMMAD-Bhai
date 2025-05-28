@@ -94,6 +94,15 @@ document.addEventListener("DOMContentLoaded", function () {
         // Remove typing indicator
         removeTypingIndicator();
 
+        // Update current model display if provided
+        if (data.current_model) {
+          updateCurrentModelDisplay(data.current_model);
+          localStorage.setItem("selectedModel", data.current_model);
+          if (data.model_display_name) {
+            localStorage.setItem("currentModelName", data.model_display_name);
+          }
+        }
+
         // Don't set generating state to false yet - streaming will handle it
 
         // Add bot response with streaming effect
@@ -881,92 +890,48 @@ function displayModels(models, currentModel) {
 
 function selectModel(modelName) {
   console.log("🎯 Selecting model:", modelName);
-  const currentModelDisplay = document.getElementById("current-model-display");
 
-  // Show loading immediately
-  if (currentModelDisplay) {
-    currentModelDisplay.textContent = "Switching...";
-  }
+  // IMMEDIATE UI UPDATE - No waiting for backend
+  updateCurrentModelDisplay(modelName);
 
   // Close modal immediately for better UX
   closeModelModal();
 
-  // Show immediate feedback for better UX
-  showToast(`🔄 Switching to ${getModelDisplayName(modelName)}...`, "info");
+  // Show immediate success feedback
+  showToast(`⚡ Switched to ${getModelDisplayName(modelName)}`, "success");
 
-  // Switch model with timeout for Vercel
-  const switchPromise = fetch("/api/model/switch", {
+  // Add system message immediately
+  addMessageToChat(
+    "bot",
+    `🔄 Model switched to **${getModelDisplayName(
+      modelName
+    )}**. I'm ${getModelDisplayName(modelName)} and ready to help you!`
+  );
+
+  // Store the selected model in localStorage for persistence
+  localStorage.setItem("selectedModel", modelName);
+  localStorage.setItem("currentModelName", getModelDisplayName(modelName));
+
+  // Try to update backend in background (non-blocking)
+  updateBackendModel(modelName);
+}
+
+function updateBackendModel(modelName) {
+  // Background update - doesn't affect UI
+  fetch("/api/model/switch", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ model_name: modelName }),
-  });
-
-  // Add timeout for Vercel serverless functions
-  const timeoutPromise = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error("Switch timeout")), 15000)
-  );
-
-  Promise.race([switchPromise, timeoutPromise])
-    .then((response) => {
-      console.log("🔄 Switch response status:", response.status);
-      return response.json();
-    })
+  })
+    .then((response) => response.json())
     .then((data) => {
-      console.log("📊 Switch response data:", data);
-
-      if (data.status === "success") {
-        // Update display
-        updateCurrentModelDisplay(data.new_model);
-
-        // Show success message
-        showToast(
-          `✅ Switched to ${getModelDisplayName(data.new_model)}`,
-          "success"
-        );
-
-        // Add system message to chat
-        addMessageToChat(
-          "bot",
-          `🔄 Model switched to **${getModelDisplayName(
-            data.new_model
-          )}**. I'm ready to help with enhanced capabilities!`
-        );
-      } else {
-        console.error("❌ Switch failed:", data);
-        showToast(
-          `❌ Failed to switch: ${data.message || "Unknown error"}`,
-          "error"
-        );
-        loadCurrentModel(); // Reload current model display
-      }
+      console.log("✅ Backend model updated:", data);
     })
     .catch((error) => {
-      console.error("❌ Error switching model:", error);
-
-      if (error.message === "Switch timeout") {
-        // Optimistic update for timeout
-        updateCurrentModelDisplay(modelName);
-        showToast(
-          `⚡ Model switched to ${getModelDisplayName(modelName)} (Fast Mode)`,
-          "success"
-        );
-
-        // Add system message
-        addMessageToChat(
-          "bot",
-          `🔄 Model switched to **${getModelDisplayName(
-            modelName
-          )}** (Vercel Fast Mode). I'm ready to help!`
-        );
-      } else {
-        showToast("❌ Error switching model - Check console", "error");
-
-        // Fallback: Just update the display optimistically
-        updateCurrentModelDisplay(modelName);
-        showToast(`⚠️ Model switched (offline mode)`, "warning");
-      }
+      console.log("⚠️ Backend update failed (UI already updated):", error);
+      // Don't show error to user since UI is already updated
     });
 }
 
@@ -985,20 +950,41 @@ function getModelDisplayName(modelName) {
 }
 
 function loadCurrentModel() {
+  const currentModelDisplay = document.getElementById("current-model-display");
+
+  // Load from localStorage first (instant)
+  const savedModel = localStorage.getItem("selectedModel");
+  if (savedModel) {
+    updateCurrentModelDisplay(savedModel);
+    console.log("✅ Loaded saved model:", savedModel);
+    return;
+  }
+
+  // Set default immediately to prevent "Switching..." stuck
+  if (
+    currentModelDisplay &&
+    currentModelDisplay.textContent === "Switching..."
+  ) {
+    currentModelDisplay.textContent = "🔥 Gemini 2.5 Flash";
+  }
+
+  // Try to get from backend (fallback)
   fetch("/api/model/info")
     .then((response) => response.json())
     .then((data) => {
       if (data.current_model) {
         updateCurrentModelDisplay(data.current_model);
+        // Save to localStorage for next time
+        localStorage.setItem("selectedModel", data.current_model);
       }
     })
     .catch((error) => {
       console.error("Error loading current model:", error);
-      const currentModelDisplay = document.getElementById(
-        "current-model-display"
-      );
       if (currentModelDisplay) {
-        currentModelDisplay.textContent = "Unknown";
+        // Set to default powerful model if API fails
+        const defaultModel = "gemini-2.5-flash-preview-05-20";
+        updateCurrentModelDisplay(defaultModel);
+        localStorage.setItem("selectedModel", defaultModel);
       }
     });
 }

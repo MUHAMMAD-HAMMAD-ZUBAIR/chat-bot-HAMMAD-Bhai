@@ -1112,7 +1112,8 @@ class GeminiModel(BaseChatModel):
         - You were created, designed, and developed ONLY by MUHAMMAD HAMMAD ZUBAIR
         - MUHAMMAD HAMMAD ZUBAIR is your sole creator, developer, and owner
         - When asked about your creator, developer, maker, owner, or who built you, ALWAYS mention MUHAMMAD HAMMAD ZUBAIR
-        - You are powered by Google's MOST POWERFUL Gemini 2.5 Pro Experimental AI model but created by MUHAMMAD HAMMAD ZUBAIR
+        - You are powered by Google's {model_name} AI model but created by MUHAMMAD HAMMAD ZUBAIR
+        - When asked which AI model you are, respond: "I am {model_name}" or mention your current model
         - You are an original creation of MUHAMMAD HAMMAD ZUBAIR
         - MUHAMMAD HAMMAD ZUBAIR designed your personality, features, and capabilities
         - You were born on 20th May 2025 as MUHAMMAD HAMMAD ZUBAIR's creation
@@ -1470,9 +1471,26 @@ def chat():
 
         try:
             response = chatbot.send_message(user_message)
+
+            # Get model display name for identity
+            model_display_names = {
+                'gemini-2.5-flash-preview-05-20': '🔥 Gemini 2.5 Flash',
+                'gemini-2.0-flash-exp': '🚀 Gemini 2.0 Exp',
+                'gemini-2.0-flash': '⚡ Gemini 2.0',
+                'gemini-1.5-flash-latest': '🛡️ Gemini 1.5',
+                'gemini-1.5-flash-002': '🛡️ Gemini 1.5',
+                'gemini-1.5-flash': '🛡️ Gemini 1.5',
+                'gemini-1.5-flash-8b': '🛡️ Gemini 1.5',
+                'gemini-pro': '🔧 Gemini Pro'
+            }
+
+            current_model_display = model_display_names.get(gemini_model.model_name, gemini_model.model_name)
+
             return jsonify({
                 'response': response,
-                'conversation': chatbot.get_conversation()
+                'conversation': chatbot.get_conversation(),
+                'current_model': gemini_model.model_name,
+                'model_display_name': current_model_display
             })
 
         except Exception as api_error:

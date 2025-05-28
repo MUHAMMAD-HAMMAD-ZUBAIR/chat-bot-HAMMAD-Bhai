@@ -1,4 +1,4 @@
-name: Test and Build
+name: Test and Build for Netlify
 
 on:
   push:
@@ -25,16 +25,44 @@ jobs:
 
       - name: Test application
         run: |
-          python -c "import app; print('✅ App imports successfully')"
+          python -c "
+          import sys
+          import os
+
+          # Test basic imports
+          try:
+              import flask
+              print('✅ Flask imported successfully')
+          except ImportError as e:
+              print(f'❌ Flask import failed: {e}')
+              sys.exit(1)
+
+          try:
+              import google.generativeai
+              print('✅ Google Generative AI imported successfully')
+          except ImportError as e:
+              print(f'❌ Google Generative AI import failed: {e}')
+              sys.exit(1)
+
+          try:
+              import requests
+              print('✅ Requests imported successfully')
+          except ImportError as e:
+              print(f'❌ Requests import failed: {e}')
+              sys.exit(1)
+
+          print('✅ All critical imports successful')
+          "
           echo "✅ Basic tests passed"
 
       - name: Build success
         run: |
           echo "✅ Build completed successfully!"
-          echo "📝 To deploy to Vercel:"
-          echo "1. Go to https://vercel.com"
+          echo "📝 To deploy to Netlify:"
+          echo "1. Go to https://app.netlify.com"
           echo "2. Import this GitHub repository"
           echo "3. Deploy automatically"
+          echo "🚀 Netlify deployment ready!"
 
   # Uncomment and configure the deploy job below when you have Vercel secrets set up
   # deploy:

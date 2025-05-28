@@ -1403,9 +1403,17 @@ if not GEMINI_API_KEY:
     # Use a placeholder that will fail gracefully
     GEMINI_API_KEY = "PLEASE_SET_GEMINI_API_KEY_ENVIRONMENT_VARIABLE"
 
-# Initialize Gemini model with fallback options
+# Global variables for lazy initialization (Vercel optimization)
+gemini_model = None
+chatbot = None
+
 def initialize_best_model():
     """Initialize the MOST POWERFUL available Gemini model"""
+    global gemini_model, chatbot
+
+    if gemini_model is not None:
+        return gemini_model
+
     # List of models from MOST POWERFUL to fallback (all 100% FREE)
     powerful_models = [
         'gemini-2.5-flash-preview-05-20', # 🔥 MOST POWERFUL FREE - Google's latest (100% FREE)
@@ -1423,6 +1431,8 @@ def initialize_best_model():
             print(f"🚀 Trying to initialize {model_name}...")
             model = GeminiModel(api_key=GEMINI_API_KEY, model_name=model_name)
             print(f"✅ SUCCESS! Initialized {model_name} - MOST POWERFUL MODEL ACTIVE! 🔥")
+            gemini_model = model
+            chatbot = ChatBot(model=gemini_model)
             return model
         except Exception as e:
             print(f"❌ {model_name} not available: {str(e)}")
@@ -1430,8 +1440,14 @@ def initialize_best_model():
 
     raise Exception("❌ CRITICAL: Failed to initialize any powerful Gemini model")
 
-gemini_model = initialize_best_model()
-chatbot = ChatBot(model=gemini_model)
+def get_or_initialize_chatbot():
+    """Get chatbot instance, initialize if needed (Vercel optimization)"""
+    global chatbot, gemini_model
+
+    if chatbot is None or gemini_model is None:
+        initialize_best_model()
+
+    return chatbot
 
 # ----------- Flask Routes ------------
 
@@ -1442,11 +1458,17 @@ def index():
 @app.route('/api/test', methods=['GET'])
 def test_api():
     """Test endpoint to check if API is working"""
+    try:
+        chatbot_instance = get_or_initialize_chatbot()
+        model_name = gemini_model.model_name if gemini_model else 'Not initialized'
+    except Exception as e:
+        model_name = f'Initialization failed: {str(e)}'
+
     return jsonify({
         'status': 'success',
         'message': 'API is working correctly!',
         'timestamp': datetime.now().isoformat(),
-        'model': gemini_model.model_name if gemini_model else 'Not initialized'
+        'model': model_name
     })
 
 @app.route('/api/chat', methods=['POST'])
@@ -1470,7 +1492,8 @@ def chat():
             return jsonify({'error': 'Message too long (max 5000 characters)'}), 400
 
         try:
-            response = chatbot.send_message(user_message)
+            chatbot_instance = get_or_initialize_chatbot()
+            response = chatbot_instance.send_message(user_message)
 
             # Get model display name for identity
             model_display_names = {
@@ -1488,8 +1511,8 @@ def chat():
 
             return jsonify({
                 'response': response,
-                'conversation': chatbot.get_conversation(),
-                'current_model': gemini_model.model_name,
+                'conversation': chatbot_instance.get_conversation(),
+                'current_model': gemini_model.model_name if gemini_model else 'Unknown',
                 'model_display_name': current_model_display
             })
 
@@ -1497,7 +1520,8 @@ def chat():
             error_message = str(api_error)
             print(f"API Error: {error_message}")
 
-            chatbot.undo_last_user_message()
+            if chatbot:
+                chatbot.undo_last_user_message()
 
             # Detailed error handling for different scenarios
             if "400" in error_message:
@@ -1527,8 +1551,12 @@ def chat():
 
 @app.route('/api/reset', methods=['POST'])
 def reset_conversation():
-    chatbot.reset_conversation()
-    return jsonify({'status': 'Conversation reset successfully'})
+    try:
+        chatbot_instance = get_or_initialize_chatbot()
+        chatbot_instance.reset_conversation()
+        return jsonify({'status': 'Conversation reset successfully'})
+    except Exception as e:
+        return jsonify({'error': f'Failed to reset conversation: {str(e)}'}), 500
 
 @app.route('/api/model/info', methods=['GET'])
 def get_model_info():

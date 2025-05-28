@@ -2123,25 +2123,12 @@ def get_all_comprehensive_info():
         return jsonify({'error': f'Failed to get comprehensive info: {str(e)}'}), 500
 
 # ----------- Run Flask App ------------
-# For Vercel deployment
+# For production deployment
 app.config['ENV'] = 'production'
 app.config['DEBUG'] = False
 
-# Vercel serverless function handler - CRITICAL FOR DEPLOYMENT
-def handler(environ, start_response):
-    """
-    Proper WSGI handler for Vercel serverless functions
-    This is the entry point that Vercel calls
-    """
-    return app(environ, start_response)
-
-# Alternative handler name that Vercel might look for
-def application(environ, start_response):
-    """Alternative WSGI application entry point"""
-    return app(environ, start_response)
-
-# Export the app for Vercel
-app.wsgi_app = app.wsgi_app
+# WSGI application entry point for deployment
+application = app
 
 if __name__ == '__main__':
     # Local development

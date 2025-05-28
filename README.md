@@ -17,6 +17,7 @@ _Crafted with dedication, innovation, and cutting-edge technology by_ **MUHAMMAD
 ### One-Click Deployment
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat_bot)
+
 </div>
 
 ---
@@ -113,32 +114,32 @@ _Crafted with dedication, innovation, and cutting-edge technology by_ **MUHAMMAD
 
 ---
 
-## 🚀 Quick Deploy to Vercel (Recommended)
+## 🚀 Quick Deploy to Netlify (Recommended)
 
 ### One-Click Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat_bot)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat-bot-HAMMAD-Bhai)
 
-1. Click the "Deploy with Vercel" button above
+1. Click the "Deploy to Netlify" button above
 2. Connect your GitHub account
-3. Set the `GEMINI_API_KEY` environment variable in Vercel dashboard
+3. Set the `GEMINI_API_KEY` environment variable in Netlify dashboard
 4. Deploy and enjoy your AI assistant! 🎉
 
-### Manual Vercel Deployment
+### Manual Netlify Deployment
 
 ```bash
 # Clone the repository
-git clone https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat_bot.git
-cd chat_bot
+git clone https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat-bot-HAMMAD-Bhai.git
+cd chat-bot-HAMMAD-Bhai
 
-# Install Vercel CLI
-npm i -g vercel
+# Install Netlify CLI
+npm install -g netlify-cli
 
-# Deploy to Vercel
-vercel
+# Deploy to Netlify
+netlify deploy --prod
 
 # Set environment variable
-vercel env add GEMINI_API_KEY
+netlify env:set GEMINI_API_KEY your_api_key_here
 ```
 
 ---

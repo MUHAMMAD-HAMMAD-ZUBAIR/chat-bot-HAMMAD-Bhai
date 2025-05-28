@@ -1,0 +1,17 @@
+[build]
+  publish = "."
+  command = "pip install -r requirements.txt"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/app"
+  status = 200
+
+[functions]
+  directory = "netlify/functions"
+
+[context.production.environment]
+  GEMINI_API_KEY = "AIzaSyDRbfSucLVrG1x8idrjg9TKqcgbc9Ji_zM"

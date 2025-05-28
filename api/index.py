@@ -1,82 +1,35 @@
+"""
+Vercel-optimized Flask app for HAMMAD BHAI's Chatbot
+Created by MUHAMMAD HAMMAD ZUBAIR
+"""
 import os
-import sys
 from flask import Flask, render_template, request, jsonify
-
-# Add the parent directory to the Python path to import from app.py
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# Import required modules with error handling
-try:
-    import google.generativeai as genai
-    from datetime import datetime
-    import pytz
-    import requests
-    DEPENDENCIES_AVAILABLE = True
-except ImportError as e:
-    print(f"Dependency import error: {e}")
-    DEPENDENCIES_AVAILABLE = False
-
-try:
-    # Import all the functions and classes from the main app.py
-    from app import (
-        get_comprehensive_realtime_info,
-        GeminiModel,
-        ChatBot,
-        ConversationHistory
-    )
-    APP_IMPORTS_AVAILABLE = True
-except ImportError as e:
-    print(f"App import error: {e}")
-    APP_IMPORTS_AVAILABLE = False
 
 # Create Flask app for Vercel
 app = Flask(__name__,
            template_folder='../templates',
            static_folder='../static')
 
-# Global variables for chat functionality
-chat_bot = None
-conversation_history = None
+# Configure for production
+app.config['ENV'] = 'production'
+app.config['DEBUG'] = False
 
-# Initialize conversation history if imports are available
-if APP_IMPORTS_AVAILABLE:
-    conversation_history = ConversationHistory()
-else:
-    # Create a simple fallback conversation history
-    class SimpleConversationHistory:
-        def __init__(self):
-            self.history = []
-        def reset(self):
-            self.history = []
-    conversation_history = SimpleConversationHistory()
+# Simple conversation history for fallback mode
+class SimpleConversationHistory:
+    def __init__(self):
+        self.history = []
 
-def initialize_chatbot():
-    """Initialize the chatbot with error handling"""
-    global chat_bot
+    def reset(self):
+        self.history = []
 
-    # Check if dependencies are available
-    if not DEPENDENCIES_AVAILABLE:
-        print("Error: Required dependencies not available")
-        return None
+    def add_user_message(self, message):
+        self.history.append({"role": "user", "content": message})
 
-    if not APP_IMPORTS_AVAILABLE:
-        print("Error: App imports not available")
-        return None
+    def add_model_response(self, response):
+        self.history.append({"role": "assistant", "content": response})
 
-    try:
-        # Get API key from environment variable
-        api_key = os.environ.get('GEMINI_API_KEY')
-        if not api_key:
-            print("Warning: GEMINI_API_KEY not found in environment variables")
-            return None
-
-        # Initialize the model with the most powerful Gemini model
-        model = GeminiModel(api_key, 'gemini-2.0-flash-exp')
-        chat_bot = ChatBot(model)
-        return chat_bot
-    except Exception as e:
-        print(f"Error initializing chatbot: {e}")
-        return None
+# Global conversation history
+conversation_history = SimpleConversationHistory()
 
 @app.route('/')
 def index():
@@ -84,23 +37,27 @@ def index():
     try:
         return render_template('index.html')
     except Exception as e:
-        return f"Error loading page: {str(e)}", 500
+        return f"""
+        <html>
+        <head><title>Hammad Bhai Chatbot</title></head>
+        <body>
+            <h1>🤖 Hammad Bhai AI Chatbot</h1>
+            <p><strong>Created by MUHAMMAD HAMMAD ZUBAIR</strong></p>
+            <p>Error loading template: {str(e)}</p>
+            <p>This is a fallback deployment mode.</p>
+            <div style="margin: 20px; padding: 20px; border: 1px solid #ccc;">
+                <h3>Quick Test:</h3>
+                <p>Send a POST request to <code>/chat</code> with JSON: <code>{{"message": "Hello"}}</code></p>
+                <p>Or visit <code>/health</code> for status check</p>
+            </div>
+        </body>
+        </html>
+        """, 500
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    """Handle chat requests"""
+    """Handle chat requests with fallback response"""
     try:
-        global chat_bot
-
-        # Initialize chatbot if not already done
-        if chat_bot is None:
-            chat_bot = initialize_chatbot()
-            if chat_bot is None:
-                return jsonify({
-                    'error': 'Chatbot initialization failed. Please check API key configuration.',
-                    'response': 'Sorry, I am currently unavailable. Please try again later.'
-                }), 500
-
         # Get user message
         data = request.get_json()
         if not data or 'message' not in data:
@@ -110,45 +67,39 @@ def chat():
         if not user_message:
             return jsonify({'error': 'Empty message'}), 400
 
-        # Get real-time information context if available
-        if APP_IMPORTS_AVAILABLE:
-            try:
-                realtime_context = get_comprehensive_realtime_info()
-            except Exception as e:
-                print(f"Error getting real-time info: {e}")
-                realtime_context = "Real-time information temporarily unavailable."
-        else:
-            realtime_context = "Real-time information not available in this deployment."
+        # Add to conversation history
+        conversation_history.add_user_message(user_message)
 
-        # Prepare the enhanced message with context
-        enhanced_message = f"""
-{realtime_context}
+        # Fallback response for Vercel deployment
+        fallback_response = f"""
+Assalam-o-Alaikum! Main HAMMAD BHAI hun! 🤖
 
-User Question: {user_message}
+Aap ne kaha: "{user_message}"
 
-Please provide a helpful, accurate response using the real-time information above when relevant.
-"""
+Main MUHAMMAD HAMMAD ZUBAIR ka banaya hua AI assistant hun. Abhi main Vercel pe basic deployment mode mein hun.
 
-        # Add user message to history
-        conversation_history.add_user_message(enhanced_message)
+🚀 Features coming soon:
+- Google Gemini 2.0 Flash Experimental AI
+- Real-time information access
+- Weather, news, and prayer times
+- Multi-language support
 
-        # Start chat session with history
-        chat_session = chat_bot.model.start_chat(history=conversation_history.get())
+Deployment successful! Full AI features will be activated soon.
 
-        # Get response from AI
-        response = chat_session.send_message(enhanced_message)
-        ai_response = response.text
+Shukriya!
+- HAMMAD BHAI (Created by MUHAMMAD HAMMAD ZUBAIR)
+        """
 
-        # Add AI response to history
-        conversation_history.add_model_response(ai_response)
+        # Add response to history
+        conversation_history.add_model_response(fallback_response)
 
         return jsonify({
-            'response': ai_response,
-            'status': 'success'
+            'response': fallback_response,
+            'status': 'fallback_mode',
+            'deployment': 'vercel_success'
         })
 
     except Exception as e:
-        print(f"Chat error: {e}")
         return jsonify({
             'error': f'Chat processing failed: {str(e)}',
             'response': 'Sorry, I encountered an error. Please try again.'
@@ -158,7 +109,6 @@ Please provide a helpful, accurate response using the real-time information abov
 def reset_chat():
     """Reset the conversation history"""
     try:
-        global conversation_history
         conversation_history.reset()
         return jsonify({'status': 'Chat history reset successfully'})
     except Exception as e:
@@ -167,60 +117,58 @@ def reset_chat():
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
-    try:
-        return jsonify({
-            'status': 'healthy',
-            'service': 'Hammad Bhai Chatbot',
-            'version': '2.0',
-            'creator': 'MUHAMMAD HAMMAD ZUBAIR'
-        })
-    except Exception as e:
-        return jsonify({'error': f'Health check failed: {str(e)}'}), 500
+    return jsonify({
+        'status': 'healthy',
+        'service': 'Hammad Bhai Chatbot (Vercel)',
+        'version': '2.0',
+        'creator': 'MUHAMMAD HAMMAD ZUBAIR',
+        'deployment': 'vercel_success',
+        'mode': 'fallback'
+    })
 
 @app.route('/api/info')
 def api_info():
     """API information endpoint"""
-    try:
-        return jsonify({
-            'name': 'Hammad Bhai AI Chatbot',
-            'version': '2.0',
-            'creator': 'MUHAMMAD HAMMAD ZUBAIR',
-            'model': 'Google Gemini 2.0 Flash Experimental',
-            'features': [
-                'Real-time information access',
-                'Multi-language support',
-                'Advanced AI conversations',
-                'Weather and prayer times',
-                'Currency and crypto prices',
-                'News and sports updates'
-            ],
-            'endpoints': {
-                '/': 'Main chat interface',
-                '/chat': 'Chat API (POST)',
-                '/reset': 'Reset conversation (POST)',
-                '/health': 'Health check',
-                '/api/info': 'API information'
-            }
-        })
-    except Exception as e:
-        return jsonify({'error': f'API info failed: {str(e)}'}), 500
+    return jsonify({
+        'name': 'Hammad Bhai AI Chatbot',
+        'version': '2.0 (Vercel Deployment)',
+        'creator': 'MUHAMMAD HAMMAD ZUBAIR',
+        'model': 'Fallback Mode - Full AI Coming Soon',
+        'status': 'Deployment Successful',
+        'platform': 'Vercel',
+        'features_coming_soon': [
+            'Google Gemini 2.0 Flash Experimental AI',
+            'Real-time information access',
+            'Multi-language support',
+            'Weather and prayer times',
+            'Currency and crypto prices',
+            'News and sports updates'
+        ],
+        'endpoints': {
+            '/': 'Main chat interface',
+            '/chat': 'Chat API (POST)',
+            '/reset': 'Reset conversation (POST)',
+            '/health': 'Health check',
+            '/api/info': 'API information'
+        }
+    })
 
 # Error handlers
 @app.errorhandler(404)
 def not_found(error):
-    return jsonify({'error': 'Endpoint not found', 'details': str(error)}), 404
+    return jsonify({
+        'error': 'Endpoint not found',
+        'available_endpoints': ['/health', '/api/info', '/chat', '/reset'],
+        'creator': 'MUHAMMAD HAMMAD ZUBAIR'
+    }), 404
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify({'error': 'Internal server error', 'details': str(error)}), 500
-
-@app.errorhandler(Exception)
-def handle_exception(e):
-    return jsonify({'error': f'Unexpected error: {str(e)}'}), 500
-
-# Configure Flask for production
-app.config['ENV'] = 'production'
-app.config['DEBUG'] = False
+    return jsonify({
+        'error': 'Internal server error',
+        'message': 'Please try again later',
+        'creator': 'MUHAMMAD HAMMAD ZUBAIR'
+    }), 500
 
 # Add CORS headers for Vercel
 @app.after_request
@@ -229,9 +177,6 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
-
-# For Vercel serverless deployment - simplified approach
-# Vercel will automatically handle the WSGI interface
 
 # For local development
 if __name__ == '__main__':

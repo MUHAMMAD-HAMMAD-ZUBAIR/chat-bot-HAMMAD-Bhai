@@ -2155,13 +2155,8 @@ def get_all_comprehensive_info():
 app.config['ENV'] = 'production'
 app.config['DEBUG'] = False
 
-# WSGI application entry point for deployment platforms
+# WSGI application entry point for deployment
 application = app
-
-# Vercel serverless function handler
-def handler(request):
-    """Vercel serverless function handler"""
-    return app(request.environ, request.start_response)
 
 if __name__ == '__main__':
     # Local development

@@ -10,6 +10,16 @@ import json
 import math
 from hijri_converter import Hijri, Gregorian
 
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("✅ .env file loaded successfully!")
+except ImportError:
+    print("⚠️ python-dotenv not installed, using system environment variables")
+except Exception as e:
+    print(f"⚠️ Error loading .env file: {e}")
+
 # ------------ REAL-TIME API FUNCTIONS ------------
 
 def get_accurate_datetime():

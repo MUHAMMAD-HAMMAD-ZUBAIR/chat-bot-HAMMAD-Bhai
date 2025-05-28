@@ -1,0 +1,7 @@
+Flask==3.1.1
+google-generativeai==0.8.5
+requests==2.32.3
+pytz==2024.1
+hijri-converter==2.3.1
+feedparser==6.0.11
+Werkzeug==3.1.3

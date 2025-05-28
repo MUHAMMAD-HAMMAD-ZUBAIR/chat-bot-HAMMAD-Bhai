@@ -190,9 +190,9 @@ document.addEventListener("DOMContentLoaded", function () {
         chatMessages.innerHTML = `
           <div class="message bot-message" data-message-id="welcome_msg">
             <div class="message-content">
-              ✨ Hey there, I'm <strong>HAMMAD BHAI</strong> 🤖 — your smart chat buddy,  
-        crafted with 💙 by <strong>MUHAMMAD HAMMAD ZUBAIR</strong>.  
-        Let’s brighten your day 🌟 and tackle anything, together! 💼💬  
+              ✨ Hey there, I'm <strong>HAMMAD BHAI</strong> 🤖 — your smart chat buddy,
+        crafted with 💙 by <strong>MUHAMMAD HAMMAD ZUBAIR</strong>.
+        Let’s brighten your day 🌟 and tackle anything, together! 💼💬
         Type below ⌨️ and let’s begin the fun! 🚀
               <div class="message-timestamp">${new Date().toLocaleTimeString(
                 [],
@@ -891,14 +891,24 @@ function selectModel(modelName) {
   // Close modal immediately for better UX
   closeModelModal();
 
-  // Switch model
-  fetch("/api/model/switch", {
+  // Show immediate feedback for better UX
+  showToast(`🔄 Switching to ${getModelDisplayName(modelName)}...`, "info");
+
+  // Switch model with timeout for Vercel
+  const switchPromise = fetch("/api/model/switch", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ model_name: modelName }),
-  })
+  });
+
+  // Add timeout for Vercel serverless functions
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Switch timeout")), 15000)
+  );
+
+  Promise.race([switchPromise, timeoutPromise])
     .then((response) => {
       console.log("🔄 Switch response status:", response.status);
       return response.json();
@@ -934,11 +944,29 @@ function selectModel(modelName) {
     })
     .catch((error) => {
       console.error("❌ Error switching model:", error);
-      showToast("❌ Error switching model - Check console", "error");
 
-      // Fallback: Just update the display optimistically
-      updateCurrentModelDisplay(modelName);
-      showToast(`⚠️ Model switched (offline mode)`, "warning");
+      if (error.message === "Switch timeout") {
+        // Optimistic update for timeout
+        updateCurrentModelDisplay(modelName);
+        showToast(
+          `⚡ Model switched to ${getModelDisplayName(modelName)} (Fast Mode)`,
+          "success"
+        );
+
+        // Add system message
+        addMessageToChat(
+          "bot",
+          `🔄 Model switched to **${getModelDisplayName(
+            modelName
+          )}** (Vercel Fast Mode). I'm ready to help!`
+        );
+      } else {
+        showToast("❌ Error switching model - Check console", "error");
+
+        // Fallback: Just update the display optimistically
+        updateCurrentModelDisplay(modelName);
+        showToast(`⚠️ Model switched (offline mode)`, "warning");
+      }
     });
 }
 

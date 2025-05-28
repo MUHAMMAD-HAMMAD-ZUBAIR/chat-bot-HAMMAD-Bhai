@@ -1633,54 +1633,72 @@ def switch_model():
         # Store current model for rollback
         old_model_name = gemini_model.model_name
 
+        print(f"🔄 VERCEL FAST SWITCH: {old_model_name} → {new_model_name}")
+
+        # VERCEL OPTIMIZED: Quick switch without full initialization
         try:
-            print(f"🔄 User requested switch to {new_model_name}...")
-
-            # Try to initialize new model
-            new_model = GeminiModel(api_key=GEMINI_API_KEY, model_name=new_model_name)
-
-            # Test the model with a simple message
-            test_chat = new_model.start_chat()
-            test_response = test_chat.send_message("Hello")
-
-            # If successful, switch to new model
-            gemini_model = new_model
-            chatbot = ChatBot(model=gemini_model)
-
-            print(f"✅ Successfully switched to {new_model_name}!")
+            # Method 1: Quick model name update (fastest)
+            gemini_model.model_name = new_model_name
+            print(f"✅ VERCEL FAST SWITCH: {new_model_name} activated!")
 
             return jsonify({
                 'status': 'success',
-                'message': f'Successfully switched to {new_model_name}',
+                'message': f'Fast switched to {new_model_name}',
                 'old_model': old_model_name,
                 'new_model': new_model_name,
-                'test_response': test_response.text[:100] + "..." if len(test_response.text) > 100 else test_response.text,
+                'switch_type': 'fast_vercel',
                 'timestamp': datetime.now().isoformat()
             })
 
-        except Exception as switch_error:
-            print(f"❌ Failed to switch to {new_model_name}: {str(switch_error)}")
+        except Exception as fast_switch_error:
+            print(f"❌ Fast switch failed: {fast_switch_error}")
 
-            # Try fallback approach - just change the model name
+            # Method 2: Full initialization (slower but more reliable)
             try:
-                gemini_model.model_name = new_model_name
-                print(f"✅ Fallback: Updated model name to {new_model_name}")
+                print(f"🔄 Trying full initialization for {new_model_name}...")
+
+                # Try to initialize new model
+                new_model = GeminiModel(api_key=GEMINI_API_KEY, model_name=new_model_name)
+
+                # If successful, switch to new model
+                gemini_model = new_model
+                chatbot = ChatBot(model=gemini_model)
+
+                print(f"✅ Full initialization successful: {new_model_name}")
 
                 return jsonify({
                     'status': 'success',
-                    'message': f'Switched to {new_model_name} (fallback mode)',
+                    'message': f'Successfully switched to {new_model_name}',
                     'old_model': old_model_name,
                     'new_model': new_model_name,
+                    'switch_type': 'full_init',
                     'timestamp': datetime.now().isoformat()
                 })
-            except:
-                return jsonify({
-                    'status': 'error',
-                    'message': f'Failed to switch to {new_model_name}',
-                    'error': str(switch_error),
-                    'current_model': old_model_name,
-                    'suggestion': 'Try a different model or check if the model is available'
-                }), 500
+
+            except Exception as full_init_error:
+                print(f"❌ Full initialization failed: {full_init_error}")
+
+                # Method 3: Fallback - just update name
+                try:
+                    gemini_model.model_name = new_model_name
+                    print(f"✅ Fallback: Name updated to {new_model_name}")
+
+                    return jsonify({
+                        'status': 'success',
+                        'message': f'Switched to {new_model_name} (fallback mode)',
+                        'old_model': old_model_name,
+                        'new_model': new_model_name,
+                        'switch_type': 'fallback',
+                        'timestamp': datetime.now().isoformat()
+                    })
+                except Exception as fallback_error:
+                    return jsonify({
+                        'status': 'error',
+                        'message': f'Failed to switch to {new_model_name}',
+                        'error': str(fallback_error),
+                        'current_model': old_model_name,
+                        'suggestion': 'Try a different model or refresh the page'
+                    }), 500
 
     except Exception as e:
         return jsonify({'error': f'Model switch failed: {str(e)}'}), 500

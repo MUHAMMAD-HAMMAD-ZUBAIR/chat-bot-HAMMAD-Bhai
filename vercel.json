@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "hammad-bhai-ai-assistant",
   "builds": [
     {
       "src": "app.py",
@@ -27,12 +26,6 @@
   ],
   "env": {
     "GEMINI_API_KEY": "@gemini_api_key"
-  },
-  "functions": {
-    "app.py": {
-      "maxDuration": 60,
-      "memory": 1024
-    }
   },
   "regions": ["iad1"]
 }

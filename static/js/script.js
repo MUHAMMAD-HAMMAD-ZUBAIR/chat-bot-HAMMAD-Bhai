@@ -834,6 +834,7 @@ function openModelModal() {
         },
       ];
 
+      console.log("🔄 Using fallback models");
       displayModels(fallbackModels, "gemini-2.5-flash-preview-05-20");
     });
 }

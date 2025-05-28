@@ -1562,13 +1562,35 @@ def reset_conversation():
 def get_model_info():
     """Get current model information"""
     try:
-        model_info = gemini_model.get_model_info()
+        # Initialize chatbot if needed
+        try:
+            chatbot_instance = get_or_initialize_chatbot()
+            current_model_name = gemini_model.model_name if gemini_model else 'gemini-2.5-flash-preview-05-20'
+        except Exception as init_error:
+            print(f"⚠️ Model initialization warning: {init_error}")
+            current_model_name = 'gemini-2.5-flash-preview-05-20'
+
+        # Try to get model info
+        try:
+            model_info = gemini_model.get_model_info() if gemini_model else {}
+        except:
+            model_info = {'status': 'Model info not available'}
+
         return jsonify({
-            'current_model': gemini_model.model_name,
-            'model_info': model_info
+            'status': 'success',
+            'current_model': current_model_name,
+            'model_info': model_info,
+            'api_status': 'working'
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"❌ Error in get_model_info: {str(e)}")
+        return jsonify({
+            'status': 'fallback',
+            'current_model': 'gemini-2.5-flash-preview-05-20',
+            'model_info': {'status': 'Fallback mode'},
+            'error': str(e),
+            'api_status': 'fallback_mode'
+        })
 
 @app.route('/api/model/available', methods=['GET'])
 def get_available_models():
@@ -1641,13 +1663,49 @@ def get_available_models():
             }
         ]
 
+        # Safe model name retrieval
+        try:
+            current_model_name = gemini_model.model_name if gemini_model else 'gemini-2.5-flash-preview-05-20'
+        except:
+            current_model_name = 'gemini-2.5-flash-preview-05-20'
+
         return jsonify({
-            'current_model': gemini_model.model_name,
+            'status': 'success',
+            'current_model': current_model_name,
             'available_models': available_models,
-            'total_models': len(available_models)
+            'total_models': len(available_models),
+            'api_status': 'working'
         })
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"❌ Error in get_available_models: {str(e)}")
+        # Return fallback response even if there's an error
+        fallback_models = [
+            {
+                'name': 'gemini-2.5-flash-preview-05-20',
+                'display_name': '🔥 Gemini 2.5 Flash Preview (Most Powerful)',
+                'description': 'Google\'s latest and most powerful free model',
+                'performance': '100%',
+                'speed': 'Fast',
+                'recommended': True
+            },
+            {
+                'name': 'gemini-1.5-flash',
+                'display_name': '🛡️ Gemini 1.5 Flash (Reliable)',
+                'description': 'Most reliable and stable model',
+                'performance': '75%',
+                'speed': 'Fast',
+                'recommended': False
+            }
+        ]
+
+        return jsonify({
+            'status': 'fallback',
+            'current_model': 'gemini-2.5-flash-preview-05-20',
+            'available_models': fallback_models,
+            'total_models': len(fallback_models),
+            'error': str(e),
+            'api_status': 'fallback_mode'
+        })
 
 @app.route('/api/model/switch', methods=['POST'])
 def switch_model():

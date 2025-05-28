@@ -1,6 +1,6 @@
 [build]
   publish = "."
-  command = "echo 'Build complete - HAMMAD BHAI AI'"
+  command = "echo 'HAMMAD BHAI AI - Original Flask App Ready'"
 
 [build.environment]
   PYTHON_VERSION = "3.11"
@@ -9,9 +9,10 @@
   directory = "netlify/functions"
 
 [[redirects]]
-  from = "/api/*"
+  from = "/*"
   to = "/.netlify/functions/app"
   status = 200
+  force = true
 
 [context.production.environment]
   GEMINI_API_KEY = "AIzaSyDRbfSucLVrG1x8idrjg9TKqcgbc9Ji_zM"

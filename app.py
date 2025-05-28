@@ -2127,10 +2127,25 @@ def get_all_comprehensive_info():
 app.config['ENV'] = 'production'
 app.config['DEBUG'] = False
 
-# Vercel serverless function handler
-def handler(request):
-    return app(request.environ, request.start_response)
+# Vercel serverless function handler - CRITICAL FOR DEPLOYMENT
+def handler(environ, start_response):
+    """
+    Proper WSGI handler for Vercel serverless functions
+    This is the entry point that Vercel calls
+    """
+    return app(environ, start_response)
+
+# Alternative handler name that Vercel might look for
+def application(environ, start_response):
+    """Alternative WSGI application entry point"""
+    return app(environ, start_response)
+
+# Export the app for Vercel
+app.wsgi_app = app.wsgi_app
 
 if __name__ == '__main__':
     # Local development
+    print("🚀 Starting HAMMAD BHAI AI Assistant locally...")
+    print("🌐 Visit: http://localhost:5000")
+    print("👨‍💻 Created by: MUHAMMAD HAMMAD ZUBAIR")
     app.run(debug=True, host='0.0.0.0', port=5000)

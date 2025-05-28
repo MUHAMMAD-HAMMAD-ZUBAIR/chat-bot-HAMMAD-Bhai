@@ -5,19 +5,60 @@ from flask import Flask, render_template, request, jsonify
 # Add parent directory to path to import from main app.py
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Try to import from main app.py with fallback
+# Simplified imports for Vercel - avoid complex dependencies
 try:
-    from app import (
-        get_comprehensive_realtime_info,
-        GeminiModel,
-        ChatBot,
-        ConversationHistory
-    )
+    import google.generativeai as genai
     FULL_AI_AVAILABLE = True
-    print("✅ Full AI functionality loaded")
+    print("✅ Google AI available")
 except ImportError as e:
-    print(f"⚠️ Full AI not available: {e}")
+    print(f"⚠️ Google AI not available: {e}")
     FULL_AI_AVAILABLE = False
+
+# Simple model class for Vercel
+class SimpleGeminiModel:
+    def __init__(self, api_key, model_name='gemini-2.0-flash-exp'):
+        genai.configure(api_key=api_key)
+
+        # System instruction for identity
+        system_instruction = f"""You are HAMMAD BHAI, a helpful AI assistant created by MUHAMMAD HAMMAD ZUBAIR.
+
+IDENTITY:
+- Name: HAMMAD BHAI
+- Creator: MUHAMMAD HAMMAD ZUBAIR
+- Model: {model_name}
+
+When asked about your identity, always mention:
+- You are HAMMAD BHAI
+- Created by MUHAMMAD HAMMAD ZUBAIR
+- Running on {model_name}
+
+Be helpful, friendly, and conversational. Support both English and Urdu."""
+
+        self.model = genai.GenerativeModel(
+            model_name=model_name,
+            system_instruction=system_instruction
+        )
+        self.model_name = model_name
+
+    def start_chat(self, history=None):
+        return self.model.start_chat(history=history or [])
+
+# Simple conversation history
+class SimpleHistory:
+    def __init__(self):
+        self.history = []
+
+    def reset(self):
+        self.history = []
+
+    def add_user_message(self, msg):
+        self.history.append({"role": "user", "parts": [msg]})
+
+    def add_model_response(self, msg):
+        self.history.append({"role": "model", "parts": [msg]})
+
+    def get(self):
+        return self.history
 
 # Create Flask app
 app = Flask(__name__,
@@ -29,7 +70,7 @@ chat_bot = None
 conversation_history = None
 
 def initialize_chatbot():
-    """Initialize the full AI chatbot"""
+    """Initialize the simple AI chatbot for Vercel"""
     global chat_bot
 
     if not FULL_AI_AVAILABLE:
@@ -61,8 +102,8 @@ def initialize_chatbot():
         for model_name in models_to_try:
             try:
                 print(f"🚀 Trying to initialize {model_name}...")
-                model = GeminiModel(api_key, model_name)
-                chat_bot = ChatBot(model)
+                model = SimpleGeminiModel(api_key, model_name)
+                chat_bot = model  # Store the model directly
                 print(f"✅ SUCCESS! Initialized {model_name}")
                 return chat_bot
             except Exception as e:
@@ -77,20 +118,7 @@ def initialize_chatbot():
         return None
 
 # Initialize conversation history
-if FULL_AI_AVAILABLE:
-    conversation_history = ConversationHistory()
-else:
-    # Simple fallback
-    class SimpleHistory:
-        def __init__(self):
-            self.history = []
-        def reset(self):
-            self.history = []
-        def add_user_message(self, msg):
-            self.history.append({"role": "user", "content": msg})
-        def add_model_response(self, msg):
-            self.history.append({"role": "model", "content": msg})
-    conversation_history = SimpleHistory()
+conversation_history = SimpleHistory()
 
 @app.route('/')
 def home():
@@ -190,7 +218,7 @@ def debug_info():
                     'GOOGLE_API_KEY': bool(os.environ.get('GOOGLE_API_KEY')),
                 },
                 'python_path': os.environ.get('PYTHONPATH', 'Not set'),
-                'current_model': chat_bot.model.model_name if chat_bot and hasattr(chat_bot, 'model') else 'None'
+                'current_model': chat_bot.model_name if chat_bot else 'None'
             },
             'creator': 'MUHAMMAD HAMMAD ZUBAIR'
         })
@@ -224,26 +252,14 @@ def api_chat():
 
             if chat_bot is not None:
                 try:
-                    # Get real-time context
-                    realtime_context = get_comprehensive_realtime_info()
-
-                    # Enhanced message with context
-                    enhanced_message = f"""
-{realtime_context}
-
-User Question: {user_message}
-
-Please provide a helpful, accurate response using the real-time information above when relevant.
-"""
-
                     # Add to conversation history
-                    conversation_history.add_user_message(enhanced_message)
+                    conversation_history.add_user_message(user_message)
 
                     # Start chat session
-                    chat_session = chat_bot.model.start_chat(history=conversation_history.get())
+                    chat_session = chat_bot.start_chat(history=conversation_history.get())
 
                     # Get AI response
-                    response = chat_session.send_message(enhanced_message)
+                    response = chat_session.send_message(user_message)
                     ai_response = response.text
 
                     # Add to history
@@ -261,7 +277,7 @@ Please provide a helpful, accurate response using the real-time information abov
                         'gemini-pro': '🔧 Gemini Pro'
                     }
 
-                    current_model = chat_bot.model.model_name
+                    current_model = chat_bot.model_name if chat_bot else 'gemini-2.0-flash-exp'
                     current_model_display = model_display_names.get(current_model, current_model)
 
                     return jsonify({
@@ -383,8 +399,8 @@ def get_model_info():
     """Get current model information"""
     try:
         current_model = 'gemini-2.0-flash-exp'
-        if FULL_AI_AVAILABLE and chat_bot and hasattr(chat_bot, 'model'):
-            current_model = chat_bot.model.model_name
+        if FULL_AI_AVAILABLE and chat_bot:
+            current_model = chat_bot.model_name
 
         return jsonify({
             'current_model': current_model,
@@ -418,8 +434,8 @@ def switch_model():
                     'AIzaSyDRbfSucLVrG1x8idrjg9TKqcgbc9Ji_zM'
                 )
                 if api_key:
-                    new_model = GeminiModel(api_key, new_model_name)
-                    chat_bot = ChatBot(new_model)
+                    new_model = SimpleGeminiModel(api_key, new_model_name)
+                    chat_bot = new_model
                     print(f"✅ Switched to {new_model_name}")
             except Exception as e:
                 print(f"⚠️ Model switch failed: {e}")

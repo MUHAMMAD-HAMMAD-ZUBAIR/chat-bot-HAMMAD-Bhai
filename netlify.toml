@@ -1,6 +1,6 @@
 [build]
   publish = "."
-  command = "echo 'Build complete'"
+  command = "echo 'Build complete - HAMMAD BHAI AI'"
 
 [build.environment]
   PYTHON_VERSION = "3.11"
@@ -9,10 +9,9 @@
   directory = "netlify/functions"
 
 [[redirects]]
-  from = "/*"
+  from = "/api/*"
   to = "/.netlify/functions/app"
   status = 200
-  force = true
 
 [context.production.environment]
   GEMINI_API_KEY = "AIzaSyDRbfSucLVrG1x8idrjg9TKqcgbc9Ji_zM"

@@ -1,4 +1,4 @@
-name: Deploy to Vercel
+name: Test and Build
 
 on:
   push:
@@ -9,37 +9,46 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    
-    - name: Test application
-      run: |
-        python -c "import app; print('✅ App imports successfully')"
-        echo "✅ Basic tests passed"
 
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Deploy to Vercel
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        vercel-args: '--prod'
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Test application
+        run: |
+          python -c "import app; print('✅ App imports successfully')"
+          echo "✅ Basic tests passed"
+
+      - name: Build success
+        run: |
+          echo "✅ Build completed successfully!"
+          echo "📝 To deploy to Vercel:"
+          echo "1. Go to https://vercel.com"
+          echo "2. Import this GitHub repository"
+          echo "3. Deploy automatically"
+
+  # Uncomment and configure the deploy job below when you have Vercel secrets set up
+  # deploy:
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+  #
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #
+  #   - name: Deploy to Vercel
+  #     uses: amondnet/vercel-action@v25
+  #     with:
+  #       vercel-token: ${{ secrets.VERCEL_TOKEN }}
+  #       vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+  #       vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+  #       vercel-args: '--prod'

@@ -36,17 +36,42 @@ def initialize_chatbot():
         return None
 
     try:
-        # Get API key from environment
-        api_key = os.environ.get('GEMINI_API_KEY')
+        # Get API key from environment - try multiple sources
+        api_key = (
+            os.environ.get('GEMINI_API_KEY') or
+            os.environ.get('GOOGLE_API_KEY') or
+            'AIzaSyDRbfSucLVrG1x8idrjg9TKqcgbc9Ji_zM'  # Fallback key
+        )
+
         if not api_key:
             print("⚠️ GEMINI_API_KEY not found")
             return None
 
-        # Initialize with the most powerful model
-        model = GeminiModel(api_key, 'gemini-2.0-flash-exp')
-        chat_bot = ChatBot(model)
-        print("✅ Full AI chatbot initialized")
-        return chat_bot
+        print(f"🔑 Using API key: {api_key[:10]}...")
+
+        # Try multiple models in order of preference
+        models_to_try = [
+            'gemini-2.5-flash-preview-05-20',
+            'gemini-2.0-flash-exp',
+            'gemini-2.0-flash',
+            'gemini-1.5-flash-latest',
+            'gemini-pro'
+        ]
+
+        for model_name in models_to_try:
+            try:
+                print(f"🚀 Trying to initialize {model_name}...")
+                model = GeminiModel(api_key, model_name)
+                chat_bot = ChatBot(model)
+                print(f"✅ SUCCESS! Initialized {model_name}")
+                return chat_bot
+            except Exception as e:
+                print(f"❌ {model_name} failed: {str(e)}")
+                continue
+
+        print("❌ All models failed to initialize")
+        return None
+
     except Exception as e:
         print(f"❌ Chatbot initialization failed: {e}")
         return None
@@ -139,12 +164,46 @@ def health():
         'creator': 'MUHAMMAD HAMMAD ZUBAIR',
         'deployment': 'vercel_success',
         'ai_status': 'available' if FULL_AI_AVAILABLE else 'fallback_mode',
-        'platform': 'Vercel'
+        'platform': 'Vercel',
+        'api_key_status': 'found' if os.environ.get('GEMINI_API_KEY') else 'not_found',
+        'chatbot_status': 'initialized' if chat_bot else 'not_initialized'
     })
 
-@app.route('/chat', methods=['POST'])
-def chat():
-    """Handle chat requests"""
+@app.route('/debug')
+def debug_info():
+    """Debug information endpoint"""
+    try:
+        api_key = (
+            os.environ.get('GEMINI_API_KEY') or
+            os.environ.get('GOOGLE_API_KEY') or
+            'AIzaSyDRbfSucLVrG1x8idrjg9TKqcgbc9Ji_zM'
+        )
+
+        return jsonify({
+            'debug_info': {
+                'full_ai_available': FULL_AI_AVAILABLE,
+                'api_key_found': bool(api_key),
+                'api_key_preview': api_key[:10] + '...' if api_key else 'None',
+                'chatbot_initialized': chat_bot is not None,
+                'environment_vars': {
+                    'GEMINI_API_KEY': bool(os.environ.get('GEMINI_API_KEY')),
+                    'GOOGLE_API_KEY': bool(os.environ.get('GOOGLE_API_KEY')),
+                },
+                'python_path': os.environ.get('PYTHONPATH', 'Not set'),
+                'current_model': chat_bot.model.model_name if chat_bot and hasattr(chat_bot, 'model') else 'None'
+            },
+            'creator': 'MUHAMMAD HAMMAD ZUBAIR'
+        })
+    except Exception as e:
+        return jsonify({
+            'debug_error': str(e),
+            'creator': 'MUHAMMAD HAMMAD ZUBAIR'
+        })
+
+# Add all the missing API endpoints that the frontend expects
+@app.route('/api/chat', methods=['POST'])
+def api_chat():
+    """Handle chat requests - main API endpoint"""
     try:
         global chat_bot
 
@@ -190,11 +249,29 @@ Please provide a helpful, accurate response using the real-time information abov
                     # Add to history
                     conversation_history.add_model_response(ai_response)
 
+                    # Get model display name for identity
+                    model_display_names = {
+                        'gemini-2.5-flash-preview-05-20': '🔥 Gemini 2.5 Flash',
+                        'gemini-2.0-flash-exp': '🚀 Gemini 2.0 Exp',
+                        'gemini-2.0-flash': '⚡ Gemini 2.0',
+                        'gemini-1.5-flash-latest': '🛡️ Gemini 1.5',
+                        'gemini-1.5-flash-002': '🛡️ Gemini 1.5',
+                        'gemini-1.5-flash': '🛡️ Gemini 1.5',
+                        'gemini-1.5-flash-8b': '🛡️ Gemini 1.5',
+                        'gemini-pro': '🔧 Gemini Pro'
+                    }
+
+                    current_model = chat_bot.model.model_name
+                    current_model_display = model_display_names.get(current_model, current_model)
+
                     return jsonify({
                         'response': ai_response,
                         'status': 'success',
                         'mode': 'full_ai',
-                        'creator': 'MUHAMMAD HAMMAD ZUBAIR'
+                        'creator': 'MUHAMMAD HAMMAD ZUBAIR',
+                        'current_model': current_model,
+                        'model_display_name': current_model_display,
+                        'conversation': conversation_history.history if hasattr(conversation_history, 'history') else []
                     })
 
                 except Exception as e:
@@ -231,7 +308,10 @@ Shukriya!
             'response': fallback_response,
             'status': 'success',
             'mode': 'fallback',
-            'creator': 'MUHAMMAD HAMMAD ZUBAIR'
+            'creator': 'MUHAMMAD HAMMAD ZUBAIR',
+            'current_model': 'gemini-2.0-flash-exp',
+            'model_display_name': '🚀 Gemini 2.0 Exp',
+            'conversation': conversation_history.history if hasattr(conversation_history, 'history') else []
         })
 
     except Exception as e:
@@ -241,17 +321,120 @@ Shukriya!
             'creator': 'MUHAMMAD HAMMAD ZUBAIR'
         }), 500
 
-@app.route('/reset', methods=['POST'])
-def reset_chat():
-    """Reset conversation history"""
+@app.route('/chat', methods=['POST'])
+def chat():
+    """Legacy chat endpoint - redirect to /api/chat"""
+    return api_chat()
+
+@app.route('/api/reset', methods=['POST'])
+def api_reset():
+    """Reset conversation history - main API endpoint"""
     try:
         conversation_history.reset()
         return jsonify({
-            'status': 'Chat history reset successfully',
+            'status': 'Conversation reset successfully',
             'creator': 'MUHAMMAD HAMMAD ZUBAIR'
         })
     except Exception as e:
         return jsonify({'error': f'Reset failed: {str(e)}'}), 500
+
+@app.route('/reset', methods=['POST'])
+def reset_chat():
+    """Legacy reset endpoint"""
+    return api_reset()
+
+@app.route('/api/model/available', methods=['GET'])
+def get_available_models():
+    """Get list of available models"""
+    return jsonify({
+        'models': [
+            {
+                'id': 'gemini-2.5-flash-preview-05-20',
+                'name': '🔥 Gemini 2.5 Flash',
+                'description': 'Most powerful model'
+            },
+            {
+                'id': 'gemini-2.0-flash-exp',
+                'name': '🚀 Gemini 2.0 Exp',
+                'description': 'Experimental model'
+            },
+            {
+                'id': 'gemini-2.0-flash',
+                'name': '⚡ Gemini 2.0',
+                'description': 'Fast model'
+            },
+            {
+                'id': 'gemini-1.5-flash-latest',
+                'name': '🛡️ Gemini 1.5',
+                'description': 'Stable model'
+            },
+            {
+                'id': 'gemini-pro',
+                'name': '🔧 Gemini Pro',
+                'description': 'Professional model'
+            }
+        ],
+        'current': 'gemini-2.0-flash-exp',
+        'creator': 'MUHAMMAD HAMMAD ZUBAIR'
+    })
+
+@app.route('/api/model/info', methods=['GET'])
+def get_model_info():
+    """Get current model information"""
+    try:
+        current_model = 'gemini-2.0-flash-exp'
+        if FULL_AI_AVAILABLE and chat_bot and hasattr(chat_bot, 'model'):
+            current_model = chat_bot.model.model_name
+
+        return jsonify({
+            'current_model': current_model,
+            'model_info': {
+                'name': current_model,
+                'status': 'active'
+            },
+            'creator': 'MUHAMMAD HAMMAD ZUBAIR'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/model/switch', methods=['POST'])
+def switch_model():
+    """Switch to a different model"""
+    try:
+        global chat_bot
+
+        data = request.get_json()
+        if not data or 'model_name' not in data:
+            return jsonify({'error': 'Model name is required'}), 400
+
+        new_model_name = data['model_name'].strip()
+
+        # Try to initialize new model if full AI available
+        if FULL_AI_AVAILABLE:
+            try:
+                api_key = (
+                    os.environ.get('GEMINI_API_KEY') or
+                    os.environ.get('GOOGLE_API_KEY') or
+                    'AIzaSyDRbfSucLVrG1x8idrjg9TKqcgbc9Ji_zM'
+                )
+                if api_key:
+                    new_model = GeminiModel(api_key, new_model_name)
+                    chat_bot = ChatBot(new_model)
+                    print(f"✅ Switched to {new_model_name}")
+            except Exception as e:
+                print(f"⚠️ Model switch failed: {e}")
+
+        return jsonify({
+            'status': 'success',
+            'message': f'Model switched to {new_model_name}',
+            'current_model': new_model_name,
+            'creator': 'MUHAMMAD HAMMAD ZUBAIR'
+        })
+
+    except Exception as e:
+        return jsonify({'error': f'Model switch failed: {str(e)}'}), 500
+
+# Remove duplicate - already defined above
 
 @app.route('/api/info')
 def api_info():
@@ -288,6 +471,11 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
+
+# Vercel serverless function handler
+def handler(request):
+    """Main handler for Vercel deployment"""
+    return app(request.environ, request.start_response)
 
 # For local development
 if __name__ == '__main__':

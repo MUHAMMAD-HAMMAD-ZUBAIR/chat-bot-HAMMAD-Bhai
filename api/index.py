@@ -1,18 +1,12 @@
 import os
-import sys
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
 
-# Add parent directory to path to import from main app.py
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# Simplified imports for Vercel - avoid complex dependencies
+# Simple imports - no complex dependencies
 try:
     import google.generativeai as genai
-    FULL_AI_AVAILABLE = True
-    print("✅ Google AI available")
-except ImportError as e:
-    print(f"⚠️ Google AI not available: {e}")
-    FULL_AI_AVAILABLE = False
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
 
 # Simple model class for Vercel
 class SimpleGeminiModel:
@@ -73,7 +67,7 @@ def initialize_chatbot():
     """Initialize the simple AI chatbot for Vercel"""
     global chat_bot
 
-    if not FULL_AI_AVAILABLE:
+    if not AI_AVAILABLE:
         return None
 
     try:
@@ -124,7 +118,176 @@ conversation_history = SimpleHistory()
 def home():
     """Serve the main chat interface"""
     try:
-        return render_template('index.html')
+        # Simple HTML response for Vercel
+        return """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAMMAD BHAI - AI Chatbot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+        h1 { color: #333; margin-bottom: 20px; font-size: 2.5em; }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 1.2em; }
+        .status {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .chat-box {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 300px;
+            border: 2px solid #e9ecef;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+        }
+        input:focus { border-color: #667eea; }
+        button {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover { background: #5a6fd8; }
+        .message {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+        }
+        .user-message {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .bot-message {
+            background: #e9ecef;
+            color: #333;
+            margin-right: auto;
+            text-align: left;
+        }
+        .footer { margin-top: 30px; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 HAMMAD BHAI</h1>
+        <p class="subtitle">Your Friendly AI Assistant</p>
+        <p><strong>Created by MUHAMMAD HAMMAD ZUBAIR</strong></p>
+
+        <div class="status">
+            ✅ <strong>Vercel Deployment Successful!</strong><br>
+            🚀 AI Chatbot is ready to help you!
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="message bot-message">
+                👋 Assalam-o-Alaikum! Main HAMMAD BHAI hun!<br>
+                Main MUHAMMAD HAMMAD ZUBAIR ka banaya hua AI assistant hun.<br>
+                Aap mujhse kuch bhi pooch sakte hain! 😊
+            </div>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="messageInput" placeholder="Type your message here..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+
+        <div class="footer">
+            <p>Powered by Google Gemini AI • © 2025 MUHAMMAD HAMMAD ZUBAIR</p>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const chatBox = document.getElementById('chatBox');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Add user message
+            chatBox.innerHTML += `<div class="message user-message">${message}</div>`;
+            input.value = '';
+
+            // Add typing indicator
+            chatBox.innerHTML += `<div class="message bot-message" id="typing">🤖 Typing...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+
+                // Remove typing indicator
+                document.getElementById('typing').remove();
+
+                // Add bot response
+                if (data.response) {
+                    chatBox.innerHTML += `<div class="message bot-message">${data.response}</div>`;
+                } else {
+                    chatBox.innerHTML += `<div class="message bot-message">❌ Sorry, something went wrong!</div>`;
+                }
+            } catch (error) {
+                document.getElementById('typing').remove();
+                chatBox.innerHTML += `<div class="message bot-message">❌ Network error! Please try again.</div>`;
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
+        """
     except Exception as e:
         return f"""
         <!DOCTYPE html>
@@ -191,7 +354,7 @@ def health():
         'service': 'HAMMAD BHAI Chatbot',
         'creator': 'MUHAMMAD HAMMAD ZUBAIR',
         'deployment': 'vercel_success',
-        'ai_status': 'available' if FULL_AI_AVAILABLE else 'fallback_mode',
+        'ai_status': 'available' if AI_AVAILABLE else 'fallback_mode',
         'platform': 'Vercel',
         'api_key_status': 'found' if os.environ.get('GEMINI_API_KEY') else 'not_found',
         'chatbot_status': 'initialized' if chat_bot else 'not_initialized'
@@ -209,7 +372,7 @@ def debug_info():
 
         return jsonify({
             'debug_info': {
-                'full_ai_available': FULL_AI_AVAILABLE,
+                'full_ai_available': AI_AVAILABLE,
                 'api_key_found': bool(api_key),
                 'api_key_preview': api_key[:10] + '...' if api_key else 'None',
                 'chatbot_initialized': chat_bot is not None,
@@ -245,7 +408,7 @@ def api_chat():
             return jsonify({'error': 'Empty message'}), 400
 
         # Try to use full AI if available
-        if FULL_AI_AVAILABLE:
+        if AI_AVAILABLE:
             # Initialize chatbot if not already done
             if chat_bot is None:
                 chat_bot = initialize_chatbot()
@@ -306,7 +469,7 @@ Main MUHAMMAD HAMMAD ZUBAIR ka banaya hua AI assistant hun.
 ✅ Vercel deployment successful!
 🚀 Basic chatbot functionality working!
 
-{"🔧 Full AI mode loading..." if FULL_AI_AVAILABLE else "⚠️ Running in fallback mode"}
+{"🔧 Full AI mode loading..." if AI_AVAILABLE else "⚠️ Running in fallback mode"}
 
 Features:
 - Google Gemini 2.0 Flash Experimental AI
@@ -399,7 +562,7 @@ def get_model_info():
     """Get current model information"""
     try:
         current_model = 'gemini-2.0-flash-exp'
-        if FULL_AI_AVAILABLE and chat_bot:
+        if AI_AVAILABLE and chat_bot:
             current_model = chat_bot.model_name
 
         return jsonify({
@@ -426,7 +589,7 @@ def switch_model():
         new_model_name = data['model_name'].strip()
 
         # Try to initialize new model if full AI available
-        if FULL_AI_AVAILABLE:
+        if AI_AVAILABLE:
             try:
                 api_key = (
                     os.environ.get('GEMINI_API_KEY') or
@@ -461,7 +624,7 @@ def api_info():
         'creator': 'MUHAMMAD HAMMAD ZUBAIR',
         'status': 'Deployment Successful',
         'platform': 'Vercel',
-        'ai_mode': 'Full AI' if FULL_AI_AVAILABLE else 'Fallback Mode',
+        'ai_mode': 'Full AI' if AI_AVAILABLE else 'Fallback Mode',
         'model': 'Google Gemini 2.0 Flash Experimental',
         'features': [
             'Real-time information access',

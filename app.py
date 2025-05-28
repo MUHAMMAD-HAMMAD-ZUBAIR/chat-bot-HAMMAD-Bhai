@@ -1382,13 +1382,15 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
-# Load API key (env or direct fallback)
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyDzkUNQuw_V8q54kesKdX-T_2wcqh8kCvA")
+# Load API key from environment variable (required for Vercel)
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 # Validate API key
-if not GEMINI_API_KEY or GEMINI_API_KEY == "your_api_key_here":
-    print("⚠️ WARNING: No valid API key found. Please set GEMINI_API_KEY environment variable.")
-    GEMINI_API_KEY = "AIzaSyDzkUNQuw_V8q54kesKdX-T_2wcqh8kCvA"  # Fallback key
+if not GEMINI_API_KEY:
+    print("⚠️ WARNING: No GEMINI_API_KEY environment variable found.")
+    print("🔧 For Vercel deployment, set GEMINI_API_KEY in your environment variables.")
+    # Use a placeholder that will fail gracefully
+    GEMINI_API_KEY = "PLEASE_SET_GEMINI_API_KEY_ENVIRONMENT_VARIABLE"
 
 # Initialize Gemini model with fallback options
 def initialize_best_model():
@@ -1511,6 +1513,167 @@ def get_model_info():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/model/available', methods=['GET'])
+def get_available_models():
+    """Get list of all available models"""
+    try:
+        available_models = [
+            {
+                'name': 'gemini-2.5-flash-preview-05-20',
+                'display_name': '🔥 Gemini 2.5 Flash Preview (Most Powerful)',
+                'description': 'Google\'s latest and most powerful free model',
+                'performance': '100%',
+                'speed': 'Fast',
+                'recommended': True
+            },
+            {
+                'name': 'gemini-2.0-flash-exp',
+                'display_name': '🚀 Gemini 2.0 Flash Experimental',
+                'description': 'Advanced experimental features and capabilities',
+                'performance': '95%',
+                'speed': 'Very Fast',
+                'recommended': True
+            },
+            {
+                'name': 'gemini-2.0-flash',
+                'display_name': '⚡ Gemini 2.0 Flash (Stable)',
+                'description': 'Next-generation stable model',
+                'performance': '90%',
+                'speed': 'Very Fast',
+                'recommended': False
+            },
+            {
+                'name': 'gemini-1.5-flash-latest',
+                'display_name': '🔄 Gemini 1.5 Flash Latest',
+                'description': 'Latest version of 1.5 Flash',
+                'performance': '85%',
+                'speed': 'Fast',
+                'recommended': False
+            },
+            {
+                'name': 'gemini-1.5-flash-002',
+                'display_name': '📱 Gemini 1.5 Flash 002',
+                'description': 'Optimized version for reliability',
+                'performance': '80%',
+                'speed': 'Fast',
+                'recommended': False
+            },
+            {
+                'name': 'gemini-1.5-flash',
+                'display_name': '🛡️ Gemini 1.5 Flash (Reliable)',
+                'description': 'Most reliable and stable model',
+                'performance': '75%',
+                'speed': 'Fast',
+                'recommended': False
+            },
+            {
+                'name': 'gemini-1.5-flash-8b',
+                'display_name': '💨 Gemini 1.5 Flash 8B (Lightweight)',
+                'description': 'Lightweight but powerful model',
+                'performance': '70%',
+                'speed': 'Very Fast',
+                'recommended': False
+            },
+            {
+                'name': 'gemini-pro',
+                'display_name': '🔧 Gemini Pro (Classic)',
+                'description': 'Classic reliable model',
+                'performance': '65%',
+                'speed': 'Medium',
+                'recommended': False
+            }
+        ]
+
+        return jsonify({
+            'current_model': gemini_model.model_name,
+            'available_models': available_models,
+            'total_models': len(available_models)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/model/switch', methods=['POST'])
+def switch_model():
+    """Switch to a different model"""
+    try:
+        global gemini_model, chatbot
+
+        data = request.get_json()
+        if not data or 'model_name' not in data:
+            return jsonify({'error': 'Model name is required'}), 400
+
+        new_model_name = data['model_name'].strip()
+
+        # List of valid models
+        valid_models = [
+            'gemini-2.5-flash-preview-05-20',
+            'gemini-2.0-flash-exp',
+            'gemini-2.0-flash',
+            'gemini-1.5-flash-latest',
+            'gemini-1.5-flash-002',
+            'gemini-1.5-flash',
+            'gemini-1.5-flash-8b',
+            'gemini-pro'
+        ]
+
+        if new_model_name not in valid_models:
+            return jsonify({'error': f'Invalid model name. Valid models: {", ".join(valid_models)}'}), 400
+
+        # Store current model for rollback
+        old_model_name = gemini_model.model_name
+
+        try:
+            print(f"🔄 User requested switch to {new_model_name}...")
+
+            # Try to initialize new model
+            new_model = GeminiModel(api_key=GEMINI_API_KEY, model_name=new_model_name)
+
+            # Test the model with a simple message
+            test_chat = new_model.start_chat()
+            test_response = test_chat.send_message("Hello")
+
+            # If successful, switch to new model
+            gemini_model = new_model
+            chatbot = ChatBot(model=gemini_model)
+
+            print(f"✅ Successfully switched to {new_model_name}!")
+
+            return jsonify({
+                'status': 'success',
+                'message': f'Successfully switched to {new_model_name}',
+                'old_model': old_model_name,
+                'new_model': new_model_name,
+                'test_response': test_response.text[:100] + "..." if len(test_response.text) > 100 else test_response.text,
+                'timestamp': datetime.now().isoformat()
+            })
+
+        except Exception as switch_error:
+            print(f"❌ Failed to switch to {new_model_name}: {str(switch_error)}")
+
+            # Try fallback approach - just change the model name
+            try:
+                gemini_model.model_name = new_model_name
+                print(f"✅ Fallback: Updated model name to {new_model_name}")
+
+                return jsonify({
+                    'status': 'success',
+                    'message': f'Switched to {new_model_name} (fallback mode)',
+                    'old_model': old_model_name,
+                    'new_model': new_model_name,
+                    'timestamp': datetime.now().isoformat()
+                })
+            except:
+                return jsonify({
+                    'status': 'error',
+                    'message': f'Failed to switch to {new_model_name}',
+                    'error': str(switch_error),
+                    'current_model': old_model_name,
+                    'suggestion': 'Try a different model or check if the model is available'
+                }), 500
+
+    except Exception as e:
+        return jsonify({'error': f'Model switch failed: {str(e)}'}), 500
 
 @app.route('/api/regenerate', methods=['POST'])
 def regenerate_response():
@@ -1918,5 +2081,10 @@ def get_all_comprehensive_info():
 app.config['ENV'] = 'production'
 app.config['DEBUG'] = False
 
+# Vercel serverless function handler
+def handler(request):
+    return app(request.environ, request.start_response)
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Local development
+    app.run(debug=True, host='0.0.0.0', port=5000)

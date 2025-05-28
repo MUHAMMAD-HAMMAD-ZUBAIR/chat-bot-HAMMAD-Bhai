@@ -13,13 +13,11 @@
     }
   ],
   "env": {
-    "PYTHONPATH": "/var/task",
-    "GEMINI_API_KEY": "AIzaSyDzkUNQuw_V8q54kesKdX-T_2wcqh8kCvA"
+    "PYTHONPATH": "."
   },
   "functions": {
     "app.py": {
-      "maxDuration": 30,
-      "memory": 1024
+      "maxDuration": 30
     }
   }
 }

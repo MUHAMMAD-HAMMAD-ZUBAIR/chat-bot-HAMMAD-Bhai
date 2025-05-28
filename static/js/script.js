@@ -190,11 +190,10 @@ document.addEventListener("DOMContentLoaded", function () {
         chatMessages.innerHTML = `
           <div class="message bot-message" data-message-id="welcome_msg">
             <div class="message-content">
-            Hey there! I'm <strong>HAMMAD BHAI</strong> 🤖, created by
-            <strong>MUHAMMAD HAMMAD ZUBAIR</strong>, here to make your day
-            smoother and brighter! 🌟 How can I assist you today? Forget the
-            loading animation — just type your message.
-
+              ✨ Hey there, I'm <strong>HAMMAD BHAI</strong> 🤖 — your smart chat buddy,  
+        crafted with 💙 by <strong>MUHAMMAD HAMMAD ZUBAIR</strong>.  
+        Let’s brighten your day 🌟 and tackle anything, together! 💼💬  
+        Type below ⌨️ and let’s begin the fun! 🚀
               <div class="message-timestamp">${new Date().toLocaleTimeString(
                 [],
                 { hour: "2-digit", minute: "2-digit" }
@@ -736,4 +735,263 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(() => document.body.removeChild(toast), 300);
     }, 3000);
   }
+
+  // Initialize model selector
+  initializeModelSelector();
+  loadCurrentModel();
+
+  // Ensure no loading animation on startup
+  removeTypingIndicator();
+  setGeneratingState(false);
 });
+
+// MODEL SELECTOR FUNCTIONS
+function initializeModelSelector() {
+  const modelBtn = document.getElementById("model-selector-btn");
+  const modal = document.getElementById("model-modal");
+
+  if (modelBtn) {
+    modelBtn.addEventListener("click", openModelModal);
+  }
+
+  // Close modal when clicking outside
+  if (modal) {
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) {
+        closeModelModal();
+      }
+    });
+  }
+}
+
+function openModelModal() {
+  console.log("🔥 Opening model modal...");
+  const modal = document.getElementById("model-modal");
+  const modelList = document.getElementById("model-list");
+
+  if (!modal || !modelList) {
+    console.error("❌ Modal elements not found!");
+    return;
+  }
+
+  // Show loading
+  modelList.innerHTML =
+    '<div style="text-align: center; color: #64ffda; padding: 2rem;">🔄 Loading models...</div>';
+  modal.style.display = "flex";
+
+  // Load available models
+  fetch("/api/model/available")
+    .then((response) => {
+      console.log("📡 Model API response:", response.status);
+      return response.json();
+    })
+    .then((data) => {
+      console.log("📊 Models data:", data);
+      if (data.available_models) {
+        displayModels(data.available_models, data.current_model);
+      } else {
+        modelList.innerHTML =
+          '<div style="color: #ff6363; padding: 2rem; text-align: center;">❌ Failed to load models</div>';
+      }
+    })
+    .catch((error) => {
+      console.error("❌ Error loading models:", error);
+
+      // Show fallback models
+      const fallbackModels = [
+        {
+          name: "gemini-2.5-flash-preview-05-20",
+          display_name: "🔥 Gemini 2.5 Flash Preview (Most Powerful)",
+          description: "Google's latest and most powerful free model",
+          performance: "100%",
+          speed: "Fast",
+          recommended: true,
+        },
+        {
+          name: "gemini-2.0-flash-exp",
+          display_name: "🚀 Gemini 2.0 Flash Experimental",
+          description: "Advanced experimental features and capabilities",
+          performance: "95%",
+          speed: "Very Fast",
+          recommended: true,
+        },
+        {
+          name: "gemini-1.5-flash",
+          display_name: "🛡️ Gemini 1.5 Flash (Reliable)",
+          description: "Most reliable and stable model",
+          performance: "75%",
+          speed: "Fast",
+          recommended: false,
+        },
+      ];
+
+      displayModels(fallbackModels, "gemini-2.5-flash-preview-05-20");
+    });
+}
+
+function closeModelModal() {
+  const modal = document.getElementById("model-modal");
+  modal.style.display = "none";
+}
+
+function displayModels(models, currentModel) {
+  const modelList = document.getElementById("model-list");
+  console.log("🎨 Displaying models:", models.length);
+
+  modelList.innerHTML = models
+    .map(
+      (model) => `
+    <div class="model-item ${model.name === currentModel ? "current" : ""} ${
+        model.recommended ? "recommended" : ""
+      }"
+         onclick="selectModel('${model.name}')"
+         style="cursor: pointer;">
+      <div class="model-name">${model.display_name}</div>
+      <div class="model-description">${model.description}</div>
+      <div class="model-stats">
+        <div class="model-stat">
+          <i class="fas fa-tachometer-alt"></i>
+          <strong>${model.performance}</strong> Performance
+        </div>
+        <div class="model-stat">
+          <i class="fas fa-bolt"></i>
+          <strong>${model.speed}</strong> Speed
+        </div>
+        ${
+          model.name === currentModel
+            ? '<div class="model-stat"><i class="fas fa-check-circle"></i> <strong>Current</strong></div>'
+            : '<div class="model-stat"><i class="fas fa-mouse-pointer"></i> <strong>Click to Switch</strong></div>'
+        }
+      </div>
+    </div>
+  `
+    )
+    .join("");
+
+  // Add click listeners as backup
+  const modelItems = modelList.querySelectorAll(".model-item");
+  modelItems.forEach((item) => {
+    item.addEventListener("click", function () {
+      const modelName = this.getAttribute("onclick").match(/'([^']+)'/)[1];
+      console.log("🖱️ Model clicked:", modelName);
+      selectModel(modelName);
+    });
+  });
+}
+
+function selectModel(modelName) {
+  console.log("🎯 Selecting model:", modelName);
+  const currentModelDisplay = document.getElementById("current-model-display");
+
+  // Show loading immediately
+  if (currentModelDisplay) {
+    currentModelDisplay.textContent = "Switching...";
+  }
+
+  // Close modal immediately for better UX
+  closeModelModal();
+
+  // Switch model
+  fetch("/api/model/switch", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ model_name: modelName }),
+  })
+    .then((response) => {
+      console.log("🔄 Switch response status:", response.status);
+      return response.json();
+    })
+    .then((data) => {
+      console.log("📊 Switch response data:", data);
+
+      if (data.status === "success") {
+        // Update display
+        updateCurrentModelDisplay(data.new_model);
+
+        // Show success message
+        showToast(
+          `✅ Switched to ${getModelDisplayName(data.new_model)}`,
+          "success"
+        );
+
+        // Add system message to chat
+        addMessageToChat(
+          "bot",
+          `🔄 Model switched to **${getModelDisplayName(
+            data.new_model
+          )}**. I'm ready to help with enhanced capabilities!`
+        );
+      } else {
+        console.error("❌ Switch failed:", data);
+        showToast(
+          `❌ Failed to switch: ${data.message || "Unknown error"}`,
+          "error"
+        );
+        loadCurrentModel(); // Reload current model display
+      }
+    })
+    .catch((error) => {
+      console.error("❌ Error switching model:", error);
+      showToast("❌ Error switching model - Check console", "error");
+
+      // Fallback: Just update the display optimistically
+      updateCurrentModelDisplay(modelName);
+      showToast(`⚠️ Model switched (offline mode)`, "warning");
+    });
+}
+
+function getModelDisplayName(modelName) {
+  const modelMap = {
+    "gemini-2.5-flash-preview-05-20": "🔥 Gemini 2.5 Flash",
+    "gemini-2.0-flash-exp": "🚀 Gemini 2.0 Exp",
+    "gemini-2.0-flash": "⚡ Gemini 2.0",
+    "gemini-1.5-flash-latest": "🔄 Gemini 1.5 Latest",
+    "gemini-1.5-flash-002": "📱 Gemini 1.5 002",
+    "gemini-1.5-flash": "🛡️ Gemini 1.5",
+    "gemini-1.5-flash-8b": "💨 Gemini 1.5 8B",
+    "gemini-pro": "🔧 Gemini Pro",
+  };
+  return modelMap[modelName] || modelName;
+}
+
+function loadCurrentModel() {
+  fetch("/api/model/info")
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.current_model) {
+        updateCurrentModelDisplay(data.current_model);
+      }
+    })
+    .catch((error) => {
+      console.error("Error loading current model:", error);
+      const currentModelDisplay = document.getElementById(
+        "current-model-display"
+      );
+      if (currentModelDisplay) {
+        currentModelDisplay.textContent = "Unknown";
+      }
+    });
+}
+
+function updateCurrentModelDisplay(modelName) {
+  const currentModelDisplay = document.getElementById("current-model-display");
+  if (currentModelDisplay) {
+    // Shorten model name for display
+    let displayName = modelName;
+    if (modelName.includes("gemini-2.5-flash-preview")) {
+      displayName = "🔥 Gemini 2.5 Flash";
+    } else if (modelName.includes("gemini-2.0-flash-exp")) {
+      displayName = "🚀 Gemini 2.0 Exp";
+    } else if (modelName.includes("gemini-2.0-flash")) {
+      displayName = "⚡ Gemini 2.0";
+    } else if (modelName.includes("gemini-1.5-flash")) {
+      displayName = "🛡️ Gemini 1.5";
+    } else if (modelName.includes("gemini-pro")) {
+      displayName = "🔧 Gemini Pro";
+    }
+
+    currentModelDisplay.textContent = displayName;
+  }
+}

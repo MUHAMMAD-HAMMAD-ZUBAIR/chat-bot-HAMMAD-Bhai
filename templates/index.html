@@ -58,16 +58,67 @@
         🔥 Proudly Created & Developed by
         <strong>MUHAMMAD HAMMAD ZUBAIR</strong> 🔥
       </p>
+
+      <!-- Model Selector Section -->
+      <div class="model-selector-section">
+        <p
+          style="
+            color: #64ffda;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            margin-top: 1rem;
+          "
+        >
+          <i class="fas fa-brain"></i> <strong>Choose Your AI Model:</strong>
+        </p>
+        <button
+          id="model-selector-btn"
+          class="model-selector-main-btn"
+          title="Click to Switch AI Model"
+          onclick="openModelModal()"
+        >
+          <div class="model-btn-content">
+            <i class="fas fa-robot"></i>
+            <div class="model-info">
+              <span class="current-model-label">Current Model:</span>
+              <span id="current-model-display" class="current-model-name"
+                >Loading...</span
+              >
+            </div>
+            <i class="fas fa-chevron-down model-arrow"></i>
+          </div>
+        </button>
+      </div>
     </header>
+
+    <!-- Model Selector Modal -->
+    <div id="model-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-brain"></i> Choose AI Model</h3>
+          <button class="close-btn" onclick="closeModelModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p style="color: #64ffda; margin-bottom: 15px">
+            <i class="fas fa-info-circle"></i> Select the AI model that best
+            fits your needs:
+          </p>
+          <div id="model-list" class="model-list">
+            <!-- Models will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
 
     <main class="chat-container">
       <div class="chat-messages" id="chat-messages">
         <div class="message bot-message" data-message-id="welcome_msg">
           <div class="message-content">
-                       Hey there! I'm <strong>HAMMAD BHAI</strong> 🤖, created by
-            <strong>MUHAMMAD HAMMAD ZUBAIR</strong>, here to make your day
-            smoother and brighter! 🌟 How can I assist you today? Forget the
-            loading animation — just type your message.
+           ✨ Hey there, I'm <strong>HAMMAD BHAI</strong> 🤖 — your smart chat buddy,  
+        crafted with 💙 by <strong>MUHAMMAD HAMMAD ZUBAIR</strong>.  
+        Let’s brighten your day 🌟 and tackle anything, together! 💼💬  
+        Type below ⌨️ and let’s begin the fun! 🚀
+
 
             <div class="message-timestamp" id="welcome-timestamp"></div>
           </div>
@@ -90,15 +141,7 @@
         </div>
       </div>
 
-      <div
-        class="typing-indicator"
-        id="typing-indicator"
-        aria-live="polite"
-        aria-atomic="true"
-        hidden
-      >
-        <span></span><span></span><span></span>
-      </div>
+      <!-- Typing indicator will be added dynamically when needed -->
 
       <form id="chat-form" class="chat-input-container" autocomplete="off">
         <textarea

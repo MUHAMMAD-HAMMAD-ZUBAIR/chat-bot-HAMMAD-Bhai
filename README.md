@@ -23,11 +23,7 @@ _Masterfully crafted with passion, innovation, and cutting-edge technology by_
 
 ### 🌐 **Experience HAMMAD BHAI Live**
 
-## **[https://chat-bot-hammad-bhai.vercel.app/](https://chat-bot-hammad-bhai.vercel.app/)**
-
-### ⚡ **One-Click Deployment**
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat_bot)
+## **[![Deploy with Vercel](https://vercel.com/button)](https://chat-bot-hammad-bhai.vercel.app/)**
 
 </div>
 
@@ -533,11 +529,6 @@ You are free to use, modify, and distribute it with proper credits. 🤝
 - 🔒 **Security Focus** - Secure API key management
 - ⚡ **Performance Optimized** - Fast loading and smooth interactions
 
-### 🔗 Connect with Me
-
-[![GitHub](https://img.shields.io/badge/GitHub-MUHAMMAD--HAMMAD--ZUBAIR-black?style=for-the-badge&logo=github)](https://github.com/MUHAMMAD-HAMMAD-ZUBAIR)
-[![Portfolio](https://img.shields.io/badge/Portfolio-Visit%20Now-blue?style=for-the-badge&logo=web)](https://your-portfolio-link.com)
-
 </div>
 
 ---
@@ -559,13 +550,9 @@ You are free to use, modify, and distribute it with proper credits. 🤝
 
 <div align="center">
 
-## 🚀 Ready to Deploy?
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat_bot)
-
 ### 🌐 **Experience HAMMAD BHAI Live**
 
-**[https://chat-bot-hammad-bhai.vercel.app/](https://chat-bot-hammad-bhai.vercel.app/)**
+## **[![Deploy with Vercel](https://vercel.com/button)](https://chat-bot-hammad-bhai.vercel.app/)**
 
 **🌟 _Thank you for exploring HAMMAD BHAI! Let's build the future of AI together._ 🚀**
 

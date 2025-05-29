@@ -614,7 +614,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-## 🙏 **Acknowledgments**
+##  **Acknowledgments**
 
 ### 🎉 **Special Thanks**
 
@@ -658,8 +658,6 @@ This project was inspired by the vision of making advanced AI accessible to ever
 ## 🌟 **Experience the Future of AI Today**
 
 ### **[https://chat-bot-hammad-bhai.vercel.app/](https://chat-bot-hammad-bhai.vercel.app/)**
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat_bot)
 
 ### 🌐 **Join the AI Revolution - 100% FREE Forever**
 

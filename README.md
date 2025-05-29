@@ -288,10 +288,6 @@ _Engineered with excellence, powered by cutting-edge AI, and crafted with passio
 
 ### ⚡ **Installation**
 
-#### **Method 1: One-Click Deployment (Recommended)**
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat_bot)
-
 #### **Method 2: Local Development**
 
 1. **Clone the repository**

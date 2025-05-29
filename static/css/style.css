@@ -267,31 +267,40 @@ body {
   background: transparent;
 }
 
-/* SIMPLE SYNTAX HIGHLIGHTING FOR PROGRAMMING */
+/* CLEAN SYNTAX HIGHLIGHTING FOR PROGRAMMING */
 .code-block .keyword {
-  color: #ff79c6 !important;
-  font-weight: bold;
+  color: #ff6b9d !important;
+  font-weight: 600;
 }
 
 .code-block .string {
-  color: #50fa7b !important;
+  color: #4ecdc4 !important;
 }
 
 .code-block .comment {
-  color: #6272a4 !important;
+  color: #95a5a6 !important;
   font-style: italic;
+  opacity: 0.8;
 }
 
 .code-block .number {
-  color: #bd93f9 !important;
+  color: #a29bfe !important;
 }
 
 .code-block .function {
-  color: #f1fa8c !important;
+  color: #feca57 !important;
+  font-weight: 500;
 }
 
 .code-block .operator {
-  color: #ff6363 !important;
+  color: #ff7675 !important;
+}
+
+/* Ensure no nested highlighting conflicts */
+.code-block span span {
+  color: inherit !important;
+  font-weight: inherit !important;
+  font-style: inherit !important;
 }
 
 .inline-code {

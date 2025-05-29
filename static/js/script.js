@@ -372,59 +372,99 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Simple syntax highlighting function
   function applySyntaxHighlighting(code, language) {
-    if (!language) return code;
+    if (!language) return escapeHtml(code);
 
-    let highlighted = code;
+    // Escape HTML first to prevent conflicts
+    let highlighted = escapeHtml(code);
 
-    // Common programming language patterns
-    const patterns = {
-      // Keywords (for most languages)
-      keywords:
-        /\b(function|var|let|const|if|else|for|while|return|class|def|import|from|try|catch|finally|async|await|public|private|protected|static|void|int|string|bool|true|false|null|undefined|None|self|this)\b/g,
-
-      // Strings
-      strings: /(["'`])((?:\\.|(?!\1)[^\\])*?)\1/g,
-
-      // Comments
-      comments: /(\/\/.*$|\/\*[\s\S]*?\*\/|#.*$)/gm,
-
-      // Numbers
-      numbers: /\b\d+\.?\d*\b/g,
-
-      // Functions
-      functions: /\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g,
-
-      // Operators
-      operators: /[+\-*/%=<>!&|^~]/g,
-    };
-
-    // Apply highlighting in order (comments first to avoid conflicts)
-    highlighted = highlighted.replace(
-      patterns.comments,
-      '<span class="comment">$1</span>'
-    );
-    highlighted = highlighted.replace(
-      patterns.strings,
-      '<span class="string">$1$2$1</span>'
-    );
-    highlighted = highlighted.replace(
-      patterns.keywords,
-      '<span class="keyword">$1</span>'
-    );
-    highlighted = highlighted.replace(
-      patterns.numbers,
-      '<span class="number">$1</span>'
-    );
-    highlighted = highlighted.replace(
-      patterns.functions,
-      '<span class="function">$1</span>('
-    );
-    highlighted = highlighted.replace(
-      patterns.operators,
-      '<span class="operator">$1</span>'
-    );
+    // Apply highlighting based on language
+    if (language.toLowerCase() === "html") {
+      highlighted = highlightHTML(highlighted);
+    } else if (language.toLowerCase() === "css") {
+      highlighted = highlightCSS(highlighted);
+    } else if (
+      ["javascript", "js", "python", "py", "java", "cpp", "c"].includes(
+        language.toLowerCase()
+      )
+    ) {
+      highlighted = highlightProgramming(highlighted);
+    } else {
+      highlighted = highlightGeneral(highlighted);
+    }
 
     return highlighted;
+  }
+
+  // Escape HTML to prevent conflicts
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // HTML highlighting
+  function highlightHTML(code) {
+    // HTML tags
+    code = code.replace(
+      /&lt;(\/?[a-zA-Z][a-zA-Z0-9]*)[^&]*?&gt;/g,
+      '<span class="keyword">$&</span>'
+    );
+    // Attributes
+    code = code.replace(
+      /(\w+)=&quot;([^&]*?)&quot;/g,
+      '<span class="function">$1</span>=<span class="string">&quot;$2&quot;</span>'
+    );
+    return code;
+  }
+
+  // CSS highlighting
+  function highlightCSS(code) {
+    // CSS properties
+    code = code.replace(
+      /([a-zA-Z-]+)\s*:/g,
+      '<span class="function">$1</span>:'
+    );
+    // CSS values
+    code = code.replace(/:\s*([^;{]+)/g, ': <span class="string">$1</span>');
+    // CSS selectors
+    code = code.replace(
+      /^([.#]?[a-zA-Z][a-zA-Z0-9-_]*)\s*{/gm,
+      '<span class="keyword">$1</span> {'
+    );
+    return code;
+  }
+
+  // Programming languages highlighting
+  function highlightProgramming(code) {
+    // Keywords
+    code = code.replace(
+      /\b(function|var|let|const|if|else|for|while|return|class|def|import|from|try|catch|finally|async|await|public|private|protected|static|void|int|string|bool|true|false|null|undefined|None|self|this)\b/g,
+      '<span class="keyword">$1</span>'
+    );
+
+    // Strings (simple approach)
+    code = code.replace(
+      /(&quot;[^&]*?&quot;|'[^']*?')/g,
+      '<span class="string">$1</span>'
+    );
+
+    // Comments
+    code = code.replace(/(\/\/.*$|#.*$)/gm, '<span class="comment">$1</span>');
+
+    // Numbers
+    code = code.replace(/\b(\d+\.?\d*)\b/g, '<span class="number">$1</span>');
+
+    return code;
+  }
+
+  // General highlighting
+  function highlightGeneral(code) {
+    // Just basic keyword highlighting
+    code = code.replace(
+      /\b(function|var|let|const|if|else|for|while|return|class|def|import|true|false|null)\b/g,
+      '<span class="keyword">$1</span>'
+    );
+    return code;
   }
 
   function showTypingIndicator() {

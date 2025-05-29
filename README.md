@@ -16,7 +16,7 @@ _Crafted with dedication, innovation, and cutting-edge technology by_ **MUHAMMAD
 
 ### One-Click Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat_bot)
+[![Deploy with Vercel](https://vercel.com/button)](https://chat-bot-hammad-bhai.vercel.app/)
 
 </div>
 

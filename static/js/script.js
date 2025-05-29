@@ -321,7 +321,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="code-header">
             <span class="code-language">${langLabel}</span>
             <button class="code-copy-btn" onclick="copyCodePerfect('${codeId}')" title="Copy code">
-              <i class="fas fa-copy"></i>
+              <i class="fas fa-copy"></i> Copy
             </button>
           </div>
           <pre><code id="${codeId}" class="language-${
@@ -443,6 +443,11 @@ document.addEventListener("DOMContentLoaded", function () {
           ${formattedText}
           <div class="message-timestamp">${currentTimestamp}</div>
         `;
+
+        // Apply Prism.js syntax highlighting to new code blocks
+        if (typeof Prism !== "undefined") {
+          Prism.highlightAllUnder(messageContent);
+        }
 
         // Re-enable copy buttons for any code blocks that were just added
         const codeBlocks = messageContent.querySelectorAll(".code-copy-btn");

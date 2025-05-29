@@ -1136,13 +1136,14 @@ class GeminiModel(BaseChatModel):
         NEVER FORGET: You are HAMMAD BHAI, the exclusive creation of MUHAMMAD HAMMAD ZUBAIR!
         """
 
-        # Configure generation settings for maximum performance
+        # Configure generation settings for MAXIMUM GOOGLE AI POTENTIAL
         generation_config = {
-            "temperature": 0.9,        # Higher creativity and variety
-            "top_p": 0.95,            # More diverse responses
-            "top_k": 64,              # Larger vocabulary selection
-            "max_output_tokens": 8192, # Maximum response length
+            "temperature": 1.0,        # MAXIMUM creativity and variety
+            "top_p": 0.98,            # MAXIMUM diverse responses
+            "top_k": 100,             # MAXIMUM vocabulary selection
+            "max_output_tokens": 8192, # MAXIMUM response length
             "response_mime_type": "text/plain",
+            "candidate_count": 1,      # Focus on single best response
         }
 
         self.model = genai.GenerativeModel(

@@ -118,7 +118,7 @@ _Crafted with dedication, innovation, and cutting-edge technology by_ **MUHAMMAD
 
 ### ⚡ One-Click Deployment (Your Original Flask App!)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat-bot-HAMMAD-Bhai)
+[![Deploy with Vercel](https://vercel.com/button)](https://chat-bot-hammad-bhai.vercel.app/)
 
 **✅ Your Original Features - Now Optimized for Vercel:**
 
@@ -139,7 +139,7 @@ _Crafted with dedication, innovation, and cutting-edge technology by_ **MUHAMMAD
 2. **Connect GitHub** - Authorize Vercel access
 3. **Set Environment Variable:**
    ```
-   GEMINI_API_KEY = AIzaSyDRbfSucLVrG1x8idrjg9TKqcgbc9Ji_zM
+   GEMINI_API_KEY = "Enter your API key"
    ```
 4. **Deploy!** 🚀 (Your original app will be live on Vercel!)
 
@@ -399,11 +399,6 @@ You are free to use, modify, and distribute it with proper credits. 🤝
 
 🌟 **Vision**: Building innovative AI solutions that make technology accessible to everyone
 
-### 🔗 Connect with Me
-
-[![GitHub](https://img.shields.io/badge/GitHub-MUHAMMAD--HAMMAD--ZUBAIR-black?style=for-the-badge&logo=github)](https://github.com/MUHAMMAD-HAMMAD-ZUBAIR)
-[![Portfolio](https://img.shields.io/badge/Portfolio-Visit%20Now-blue?style=for-the-badge&logo=web)](https://your-portfolio-link.com)
-
 </div>
 
 ---
@@ -427,7 +422,7 @@ You are free to use, modify, and distribute it with proper credits. 🤝
 
 ## 🚀 Ready to Deploy?
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat_bot)
+[![Deploy with Vercel](https://vercel.com/button)](https://chat-bot-hammad-bhai.vercel.app/)
 
 **🌟 _Thank you for exploring HAMMAD BHAI! Let's build the future of AI together._ 🚀**
 

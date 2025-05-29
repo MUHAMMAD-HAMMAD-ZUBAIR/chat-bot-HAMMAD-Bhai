@@ -444,11 +444,6 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="message-timestamp">${currentTimestamp}</div>
         `;
 
-        // Apply Prism.js syntax highlighting to new code blocks
-        if (typeof Prism !== "undefined") {
-          Prism.highlightAllUnder(messageContent);
-        }
-
         // Re-enable copy buttons for any code blocks that were just added
         const codeBlocks = messageContent.querySelectorAll(".code-copy-btn");
         codeBlocks.forEach((btn) => {

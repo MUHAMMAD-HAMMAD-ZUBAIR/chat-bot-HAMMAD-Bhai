@@ -205,124 +205,66 @@ body {
   align-self: flex-start;
 }
 
-/* BEAUTIFUL CODE BLOCKS WITH SYNTAX HIGHLIGHTING */
+/* CODE BLOCKS */
 .code-block {
-  background: #1e1e1e !important;
-  border: 1px solid #64ffda44;
+  background: #1a202c;
   border-radius: 12px;
-  margin: 1rem 0;
+  margin: 16px 0;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(100, 255, 218, 0.1);
-  position: relative;
+  border: 1px solid #2d3748;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .code-header {
-  background: linear-gradient(135deg, #64ffda22, #ff636322);
-  padding: 0.8rem 1rem;
+  background: #2d3748;
+  padding: 12px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #64ffda33;
+  border-bottom: 1px solid #4a5568;
 }
 
 .code-language {
-  color: #64ffda;
+  font-size: 0.8rem;
   font-weight: 600;
-  font-size: 0.85rem;
+  color: #a0aec0;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .code-copy-btn {
-  background: rgba(100, 255, 218, 0.1);
-  border: 1px solid #64ffda44;
-  color: #64ffda;
-  padding: 0.4rem 0.8rem;
+  background: #4a5568;
+  border: none;
   border-radius: 6px;
+  padding: 6px 12px;
+  color: #e2e8f0;
+  font-size: 0.75rem;
   cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .code-copy-btn:hover {
-  background: rgba(100, 255, 218, 0.2);
-  border-color: #64ffda;
+  background: #718096;
   transform: translateY(-1px);
 }
 
 .code-block pre {
-  margin: 0 !important;
-  padding: 1.2rem !important;
-  background: #1e1e1e !important;
+  margin: 0;
+  padding: 20px;
   overflow-x: auto;
-  font-family: "Fira Code", "Consolas", "Monaco", monospace !important;
-  font-size: 0.9rem !important;
-  line-height: 1.6 !important;
+  background: transparent;
 }
 
 .code-block code {
-  background: transparent !important;
-  color: #f8f8f2 !important;
-  font-family: "Fira Code", "Consolas", "Monaco", monospace !important;
-}
-
-/* Prism.js Theme Overrides for Better Colors */
-.token.comment,
-.token.prolog,
-.token.doctype,
-.token.cdata {
-  color: #6272a4 !important;
-}
-
-.token.punctuation {
-  color: #f8f8f2 !important;
-}
-
-.token.property,
-.token.tag,
-.token.constant,
-.token.symbol,
-.token.deleted {
-  color: #ff79c6 !important;
-}
-
-.token.boolean,
-.token.number {
-  color: #bd93f9 !important;
-}
-
-.token.selector,
-.token.attr-name,
-.token.string,
-.token.char,
-.token.builtin,
-.token.inserted {
-  color: #50fa7b !important;
-}
-
-.token.operator,
-.token.entity,
-.token.url,
-.language-css .token.string,
-.style .token.string,
-.token.variable {
-  color: #f8f8f2 !important;
-}
-
-.token.atrule,
-.token.attr-value,
-.token.function,
-.token.class-name {
-  color: #f1fa8c !important;
-}
-
-.token.keyword {
-  color: #8be9fd !important;
-}
-
-.token.regex,
-.token.important {
-  color: #ffb86c !important;
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+    "Courier New", monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+  background: transparent;
 }
 
 .inline-code {

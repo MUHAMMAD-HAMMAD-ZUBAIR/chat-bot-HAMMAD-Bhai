@@ -314,6 +314,9 @@ document.addEventListener("DOMContentLoaded", function () {
         // Store ORIGINAL CLEAN code for perfect copying
         const originalCode = code.trim();
 
+        // Apply simple syntax highlighting
+        const highlightedCode = applySyntaxHighlighting(originalCode, language);
+
         return `
         <div class="code-block" data-original-code="${originalCode
           .replace(/"/g, "&quot;")
@@ -326,7 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <pre><code id="${codeId}" class="language-${
           language || "text"
-        }">${originalCode}</code></pre>
+        }">${highlightedCode}</code></pre>
         </div>
       `;
       }
@@ -365,6 +368,63 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     return text;
+  }
+
+  // Simple syntax highlighting function
+  function applySyntaxHighlighting(code, language) {
+    if (!language) return code;
+
+    let highlighted = code;
+
+    // Common programming language patterns
+    const patterns = {
+      // Keywords (for most languages)
+      keywords:
+        /\b(function|var|let|const|if|else|for|while|return|class|def|import|from|try|catch|finally|async|await|public|private|protected|static|void|int|string|bool|true|false|null|undefined|None|self|this)\b/g,
+
+      // Strings
+      strings: /(["'`])((?:\\.|(?!\1)[^\\])*?)\1/g,
+
+      // Comments
+      comments: /(\/\/.*$|\/\*[\s\S]*?\*\/|#.*$)/gm,
+
+      // Numbers
+      numbers: /\b\d+\.?\d*\b/g,
+
+      // Functions
+      functions: /\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g,
+
+      // Operators
+      operators: /[+\-*/%=<>!&|^~]/g,
+    };
+
+    // Apply highlighting in order (comments first to avoid conflicts)
+    highlighted = highlighted.replace(
+      patterns.comments,
+      '<span class="comment">$1</span>'
+    );
+    highlighted = highlighted.replace(
+      patterns.strings,
+      '<span class="string">$1$2$1</span>'
+    );
+    highlighted = highlighted.replace(
+      patterns.keywords,
+      '<span class="keyword">$1</span>'
+    );
+    highlighted = highlighted.replace(
+      patterns.numbers,
+      '<span class="number">$1</span>'
+    );
+    highlighted = highlighted.replace(
+      patterns.functions,
+      '<span class="function">$1</span>('
+    );
+    highlighted = highlighted.replace(
+      patterns.operators,
+      '<span class="operator">$1</span>'
+    );
+
+    return highlighted;
   }
 
   function showTypingIndicator() {

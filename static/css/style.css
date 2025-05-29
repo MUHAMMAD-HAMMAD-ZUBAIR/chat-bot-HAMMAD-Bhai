@@ -267,6 +267,33 @@ body {
   background: transparent;
 }
 
+/* SIMPLE SYNTAX HIGHLIGHTING FOR PROGRAMMING */
+.code-block .keyword {
+  color: #ff79c6 !important;
+  font-weight: bold;
+}
+
+.code-block .string {
+  color: #50fa7b !important;
+}
+
+.code-block .comment {
+  color: #6272a4 !important;
+  font-style: italic;
+}
+
+.code-block .number {
+  color: #bd93f9 !important;
+}
+
+.code-block .function {
+  color: #f1fa8c !important;
+}
+
+.code-block .operator {
+  color: #ff6363 !important;
+}
+
 .inline-code {
   background: #edf2f7;
   color: #d69e2e;

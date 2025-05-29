@@ -228,15 +228,9 @@ _Masterfully crafted with passion, innovation, and cutting-edge technology by_
 
 ---
 
-## 🚀 Deploy Your Original HAMMAD BHAI AI to Vercel
+### 🌐 **Experience HAMMAD BHAI Live**
 
-### ⚡ One-Click Deployment (Your Original Flask App!)
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MUHAMMAD-HAMMAD-ZUBAIR/chat-bot-HAMMAD-Bhai)
-
-### 🌐 **Live Production App**
-
-**[https://chat-bot-hammad-bhai.vercel.app/](https://chat-bot-hammad-bhai.vercel.app/)**
+## **[![Deploy with Vercel](https://vercel.com/button)](https://chat-bot-hammad-bhai.vercel.app/)**
 
 **✅ Your Original Features - Now Optimized for Vercel:**
 

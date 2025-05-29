@@ -586,6 +586,178 @@ body {
   .current-model-name {
     font-size: 1rem;
   }
+
+  /* Modal Responsive Styles */
+  .modal-content {
+    width: 95%;
+    max-width: none;
+    margin: 1rem;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  .modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+    max-height: 70vh;
+  }
+
+  .model-item {
+    padding: 1rem;
+  }
+
+  .model-name {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .model-description {
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+  }
+
+  .model-stats {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .model-stat {
+    gap: 0.2rem;
+  }
+
+  .model-item.recommended::before {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+    top: -6px;
+    right: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    width: 98%;
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+
+  .modal-header {
+    padding: 0.8rem;
+  }
+
+  .modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .modal-body {
+    padding: 0.8rem;
+    max-height: 75vh;
+  }
+
+  .model-item {
+    padding: 0.8rem;
+  }
+
+  .model-name {
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .model-description {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .model-stats {
+    gap: 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .model-stat {
+    gap: 0.15rem;
+  }
+
+  .model-item.recommended::before {
+    font-size: 0.55rem;
+    padding: 0.1rem 0.3rem;
+    top: -5px;
+    right: 5px;
+  }
+
+  .close-btn {
+    font-size: 1.3rem;
+    padding: 0.3rem;
+  }
+}
+
+/* Extra small screens and landscape phones */
+@media (max-width: 360px) {
+  .modal-content {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  .modal-header {
+    padding: 0.6rem;
+  }
+
+  .modal-header h3 {
+    font-size: 0.9rem;
+  }
+
+  .modal-body {
+    padding: 0.6rem;
+    max-height: 80vh;
+  }
+
+  .model-item {
+    padding: 0.6rem;
+  }
+
+  .model-name {
+    font-size: 0.9rem;
+  }
+
+  .model-description {
+    font-size: 0.75rem;
+  }
+
+  .model-stats {
+    font-size: 0.65rem;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+  .modal-content {
+    max-height: 95vh;
+  }
+
+  .modal-body {
+    max-height: 60vh;
+  }
+
+  .modal-header {
+    padding: 0.8rem;
+  }
+
+  .modal-body {
+    padding: 0.8rem;
+  }
+
+  .model-item {
+    padding: 0.8rem;
+  }
 }
 
 /* Modal Styles */
@@ -703,6 +875,8 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .model-description {
@@ -710,12 +884,15 @@ body {
   font-size: 0.9rem;
   margin-bottom: 0.8rem;
   line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .model-stats {
   display: flex;
   gap: 1rem;
   font-size: 0.8rem;
+  flex-wrap: wrap;
 }
 
 .model-stat {
@@ -723,6 +900,7 @@ body {
   align-items: center;
   gap: 0.3rem;
   color: #888;
+  white-space: nowrap;
 }
 
 .model-stat strong {

@@ -1445,6 +1445,8 @@ def get_or_initialize_chatbot():
     global chatbot, gemini_model
 
     if chatbot is None or gemini_model is None:
+        if not GEMINI_API_KEY:
+            raise ValueError("🔑 GEMINI_API_KEY not found! Please set up your API key first. Run: python setup_api_key.py")
         initialize_best_model()
 
     return chatbot
@@ -1524,7 +1526,11 @@ def chat():
                 chatbot.undo_last_user_message()
 
             # Detailed error handling for different scenarios
-            if "400" in error_message:
+            if "GEMINI_API_KEY not found" in error_message:
+                user_friendly_message = "🔑 API Key not configured! Please set up your Gemini API key first. Run: python setup_api_key.py"
+            elif "API Key is required" in error_message:
+                user_friendly_message = "🔑 API Key missing! Please configure your Gemini API key in the .env file."
+            elif "400" in error_message:
                 if "safety" in error_message.lower():
                     user_friendly_message = "Message blocked by safety filters. Please try a different question."
                 elif "invalid" in error_message.lower():
@@ -1534,7 +1540,7 @@ def chat():
             elif "429" in error_message:
                 user_friendly_message = "API quota exceeded. Please try again in a few minutes."
             elif "401" in error_message or "403" in error_message:
-                user_friendly_message = "Authentication error. Please contact support."
+                user_friendly_message = "Authentication error. Please check your API key."
             elif "500" in error_message:
                 user_friendly_message = "Server error. Please try again later."
             else:
